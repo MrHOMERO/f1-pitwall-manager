@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>F1 Pit Wall Manager - Clasificación</title>
     <style>
-        /* Estilos rústicos/industriales independientes para la Trivia */
         body {
             margin: 0;
             padding: 0;
@@ -24,7 +23,7 @@
         .caja-trivia {
             background-color: #1e293b;
             border: 2px solid #475569;
-            border-top: 5px solid #e10600; /* Rojo F1 */
+            border-top: 5px solid #e10600;
             border-radius: 8px;
             padding: 20px;
             width: 100%;
@@ -62,7 +61,6 @@
             color: #94a3b8;
             font-weight: bold;
             margin-bottom: 6px;
-            letter-spacing: 0.5px;
         }
 
         .campo-entrada input {
@@ -75,7 +73,6 @@
             font-size: 16px;
             font-weight: bold;
             text-align: center;
-            text-transform: uppercase;
             box-sizing: border-box;
         }
 
@@ -90,18 +87,10 @@
             border-radius: 6px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .btn-accion:active {
-            background-color: #b30500;
-        }
+        .oculto { display: none !important; }
 
-        .oculto {
-            display: none !important;
-        }
-
-        /* Contenedor del juego activo */
         .header-trivia {
             display: flex;
             justify-content: space-between;
@@ -114,10 +103,8 @@
 
         #texto-pregunta {
             font-size: 16px;
-            color: #f8fafc;
             margin-bottom: 20px;
             line-height: 1.4;
-            min-height: 45px;
         }
 
         .grid-opciones {
@@ -137,13 +124,17 @@
             font-size: 14px;
             text-align: left;
             cursor: pointer;
-            box-sizing: border-box;
         }
 
-        .btn-opcion:active {
-            background-color: #334155;
-            border-color: #94a3b8;
+        .btn-opcion:active { background-color: #334155; }
+
+        /* Pantalla de resultados finales */
+        .resultado-final {
+            text-align: center;
+            padding: 10px 0;
         }
+        .resultado-final h3 { color: #57ff33; margin-bottom: 5px; }
+        .resultado-final p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -153,10 +144,11 @@
         
         <!-- PANTALLA INICIAL: Reglas y Nombre -->
         <div id="intro-trivia">
-            <p class="alerta-reglas">⚠️ <b>¡ATENCIÓN DIRECTOR!</b> Las respuestas correctas y el tiempo que demores determinarán tu lugar en la grilla de salida y tu prioridad para elegir escudería al comenzar el campeonato.</p>
+            <p class="alerta-reglas">⚠️ <b>¡ATENCIÓN!</b> Tus respuestas y velocidad determinarán tu rendimiento y prioridad de desarrollo en los boxes.</p>
             <div class="campo-entrada">
-                <label>INGRESA TU NOMBRE DE DIRECTOR (MÁX 4 LETRAS):</label>
-                <input type="text" id="input-director" maxlength="4" placeholder="MART" value="MART">
+                <label>INGRESA TU NOMBRE DE DIRECTOR (MÁX 12 LETRAS):</label>
+                <!-- Modificado a un máximo de 12 caracteres -->
+                <input type="text" id="input-director" maxlength="12" placeholder="Tu Nombre" value="Carlos">
             </div>
             <button class="btn-accion" onclick="comenzarTrivia()">INICIAR CLASIFICACIÓN ⏱️</button>
         </div>
@@ -170,19 +162,21 @@
             <h3 id="texto-pregunta">Cargando pregunta...</h3>
             <div id="opciones-trivia" class="grid-opciones"></div>
         </div>
+
+        <!-- PANTALLA FINAL: Botón continuar exigido -->
+        <div id="fin-trivia" class="oculto resultado-final">
+            <h3>🏁 CLASIFICACIÓN COMPLETADA</h3>
+            <p>La telemetría está lista. Revisemos los recursos del equipo en la oficina central.</p>
+            <button class="btn-accion" onclick="irAGestion()">CONTINUAR A OFICINA 📋</button>
+        </div>
     </div>
 
     <script>
-        // Banco de 8 preguntas para garantizar aleatoriedad en cada intento
         const bancoCompleto = [
-            { q: "¿Qué significa la bandera amarilla en la F1?", a: ["Peligro, reducir velocidad", "Carrera terminada", "Permiso para adelantar", "Penalización en boxes"], c: 0 },
-            { q: "¿Cuántos títulos mundiales tiene Michael Schumacher?", a: ["5 títulos", "6 títulos", "7 títulos", "9 títulos"], c: 2 },
-            { q: "¿Qué compuesto de neumático lleva el color rojo?", a: ["Duro", "Medio", "Blando", "Lluvia"], c: 2 },
-            { q: "¿Qué significa el acrónimo DRS en los monoplazas?", a: ["Drag Reduction System", "Direct Racing Steering", "Downforce Radial System", "Dynamic Recovery Slot"], c: 0 },
-            { q: "¿Qué bandera indica la descalificación directa de un piloto?", a: ["Bandera Roja", "Bandera Negra", "Bandera Azul", "Bandera Cuadriculada"], c: 1 },
-            { q: "¿Cuántos autos integran la parrilla estándar de F1 actual?", a: ["18 autos", "20 autos", "22 autos", "24 autos"], c: 1 },
-            { q: "¿Cuál es la velocidad máxima permitida general en el Pit Lane?", a: ["50 km/h", "80 km/h", "120 km/h", "150 km/h"], c: 1 },
-            { q: "¿Qué indica la bandera azul a un piloto en pista?", a: ["Falla mecánica", "Pista húmeda", "Debe dejarse adelantar (rezagado)", "Última vuelta"], c: 2 }
+            { q: "¿Qué significa la bandera amarilla en la F1?", a: ["Peligro, reducir velocidad", "Carrera terminada", "Permiso para adelantar"], c: 0 },
+            { q: "¿Cuántos títulos mundiales tiene Michael Schumacher?", a: ["5 títulos", "6 títulos", "7 títulos"], c: 2 },
+            { q: "¿Qué compuesto de neumático lleva el color rojo?", a: ["Duro", "Medio", "Blando"], c: 2 },
+            { q: "¿Qué significa el acrónimo DRS en los monoplazas?", a: ["Drag Reduction System", "Direct Racing Steering", "Dynamic Recovery Slot"], c: 0 }
         ];
 
         let preguntasSeleccionadas = [];
@@ -190,23 +184,20 @@
         let respuestasCorrectas = 0;
         let tiempoInicio = 0;
         let intervaloCronometro = null;
-        let directorFormateado = "MART";
+        let tiempoTotal = 0;
+        let directorFormateado = "Carlos";
 
         function comenzarTrivia() {
             const input = document.getElementById('input-director');
-            directorFormateado = input && input.value ? input.value.toUpperCase().substring(0, 4) : "MART";
+            directorFormateado = input && input.value ? input.value.trim() : "Carlos";
 
-            // Mezclar el banco completo y elegir 3 preguntas al azar
             const mezcladas = [...bancoCompleto].sort(() => 0.5 - Math.random());
             preguntasSeleccionadas = mezcladas.slice(0, 3);
 
-            // Cambiar de pantalla interna
             document.getElementById('intro-trivia').classList.add('oculto');
             document.getElementById('juego-trivia').classList.remove('oculto');
 
             tiempoInicio = performance.now();
-
-            // Activar cronómetro visual
             intervaloCronometro = setInterval(() => {
                 let actual = (performance.now() - tiempoInicio) / 1000;
                 document.getElementById('cronometro-trivia').innerText = `Tiempo: ${actual.toFixed(1)}s`;
@@ -243,10 +234,15 @@
 
         function finalizarTrivia() {
             clearInterval(intervaloCronometro);
-            const tiempoTotal = ((performance.now() - tiempoInicio) / 1000).toFixed(2);
+            tiempoTotal = ((performance.now() - tiempoInicio) / 1000).toFixed(2);
 
-            // Redirigir al index pasando las variables de clasificación por la URL de forma limpia
-            window.location.href = `index.html?director=${directorFormateado}&correctas=${respuestasCorrectas}&tiempo=${tiempoTotal}`;
+            document.getElementById('juego-trivia').classList.add('oculto');
+            document.getElementById('fin-trivia').classList.remove('oculto');
+        }
+
+        function irAGestion() {
+            // Mandamos los datos a la nueva pantalla intermedia de gestión de equipo
+            window.location.href = `gestion.html?director=${encodeURIComponent(directorFormateado)}&correctas=${respuestasCorrectas}&tiempo=${tiempoTotal}`;
         }
     </script>
 </body>
