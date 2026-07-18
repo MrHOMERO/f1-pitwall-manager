@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>F1 Pit Wall Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="pantalla-celular">
+        <!-- Tercio Superior: El Circuito (Radar) -->
+        <div class="seccion-circuito">
+            <div class="info-vuelta">VUELTA <span id="num-vuelta">1</span>/70 | CLIMA: 🌤️ 12% Lluvia</div>
+            <svg viewBox="0 0 200 200" class="mapa-svg">
+                <!-- Trazado de la pista (Óvalo) -->
+                <path id="pista" d="M 50,100 A 50,50 0 1,1 150,100 A 50,50 0 1,1 50,100" fill="none" stroke="#334155" stroke-width="8" stroke-linecap="round"/>
+                <!-- El monoplaza (Punto de color) -->
+                <circle id="auto" r="6" fill="#e10600"/>
+            </svg>
+        </div>
+
+        <!-- Tercio Medio: Live Timing (Posiciones) -->
+        <div class="seccion-timing">
+            <div class="fila-piloto">
+                <span>1º <strong id="nombre-director">PILOTO</strong></span>
+                <span class="goma">🔴 <span id="vida-goma">100</span>%</span>
+            </div>
+        </div>
+
+        <!-- Tercio Inferior: Panel de Estrategia (Zona de mandos) -->
+        <div class="seccion-controles">
+            <div class="grid-botones">
+                <button class="btn btn-ritmo activo" id="btn-conservar" onclick="cambiarRitmo('conservar')">🔋 Ahorro</button>
+                <button class="btn btn-ritmo" id="btn-normal" onclick="cambiarRitmo('normal')">⏱️ Normal</button>
+                <button class="btn btn-ritmo" id="btn-ataque" onclick="cambiarRitmo('ataque')">🚀 Ataque</button>
+            </div>
+            <button class="btn-box" onclick="entrarABoxes()">⚠️ BOX EN ESTA VUELTA</button>
+        </div>
+    </div>
+    
+    <!-- Enlace al archivo de lógica -->
+    <script src="script.js"></script>
+</body>
+                  </html>
