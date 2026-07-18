@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>F1 Pit Wall Manager - Presentación</title>
     <style>
-        /* Estilos específicos y limpios para la carátula */
         body {
             margin: 0;
             padding: 0;
             background-color: #0b0f19;
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,11 +21,20 @@
         .contenedor-presentacion {
             text-align: center;
             width: 90%;
-            max-width: 300px;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Bloque de texto animado: de chico a grande */
+        .bloque-logo {
+            transform: scale(0);
+            animation: crecerLogo 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         .logo-principal {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 900;
             color: #f8fafc;
             letter-spacing: 2px;
@@ -34,58 +42,78 @@
         }
 
         .sub-logo {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: #e10600; /* Rojo F1 */
             letter-spacing: 6px;
             margin-top: -5px;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
         }
 
-        .riel-carga {
-            width: 100%;
-            height: 6px;
-            background-color: #1e293b;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-
-        .linea-progreso {
-            width: 0%;
-            height: 100%;
-            background-color: #e10600;
-            animation: deslizarCarga 4s linear forwards;
-        }
-
-        .texto-estado {
-            font-size: 11px;
-            color: #64748b;
-            letter-spacing: 1px;
+        /* Botón oculto al principio, aparece suavemente después de la animación del logo */
+        .btn-comenzar {
+            opacity: 0;
+            transform: translateY(20px);
+            background: linear-gradient(135deg, #e10600 0%, #b90500 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
             text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 15px rgba(225, 6, 0, 0.4);
+            transition: transform 0.2s;
+            animation: aparecerBoton 0.8s ease-out 1.4s forwards;
+            outline: none;
+            text-decoration: none;
         }
 
-        @keyframes deslizarCarga {
-            to { width: 100%; }
+        .btn-comenzar:active {
+            transform: scale(0.96);
+            background: #b90500;
+        }
+
+        /* Animación: De chico a grande (Escala) */
+        @keyframes crecerLogo {
+            0% {
+                transform: scale(0.2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Animación para revelar el botón */
+        @keyframes aparecerBoton {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="contenedor-presentacion">
-        <h1 class="logo-principal">F1 PIT WALL</h1>
-        <h2 class="sub-logo">MANAGER</h2>
-        <div class="riel-carga">
-            <div class="linea-progreso"></div>
+        <!-- Contenedor animado del título -->
+        <div class="bloque-logo">
+            <h1 class="logo-principal">F1 PIT WALL</h1>
+            <h2 class="sub-logo">MANAGER</h2>
         </div>
-        <p class="texto-estado">Conectando con el muro de boxes...</p>
+
+        <!-- Botón interactivo que apunta a la trivia -->
+        <button class="btn-comenzar" onclick="irALaTrivia()">Comenzar el juego</button>
     </div>
 
     <script>
-        // Al pasar exactamente 4 segundos, salta automáticamente a la trivia
-        setTimeout(() => {
+        function irALaTrivia() {
             window.location.href = "trivia.html";
-        }, 4000);
+        }
     </script>
 
 </body>
