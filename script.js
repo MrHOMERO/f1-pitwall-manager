@@ -1,19 +1,53 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. CAPTURA DE PARÁMETROS DESDE LA OFICINA DE GESTIÓN
     const urlParams = new URLSearchParams(window.location.search);
-    
-    // Captura el nombre de director completo (hasta 12 letras) sin recortarlo a 4 caracteres
     const directorFormateado = (urlParams.get('director') || 'CARLOS').toUpperCase().substring(0, 12);
     const escuderiaElegida = urlParams.get('escuderia') || 'Alpha Racing';
     const respuestasCorrectas = parseInt(urlParams.get('correctas') || '0', 10);
     const tiempoTrivia = parseFloat(urlParams.get('tiempo') || '0');
 
-    // Referencias del DOM de la carrera
-    const pista = document.getElementById('pista');
+    // Referencias del DOM
+    const pistaSVG = document.getElementById('pista');
     const contenedorAutos = document.getElementById('contenedor-autos');
     const listaTiming = document.getElementById('lista-timing');
 
-    // Base de datos oficial de equipos del campeonato
+    // 2. BASE DE DATOS MUNDIAL DE CIRCUITOS (ORDEN CRONOLÓGICO F1 2026)
+    const calendarioCircuitos = [
+        { nombre: "GP de Australia (Melbourne)", d: "M 40,70 C 70,50 110,50 130,65 C 160,85 170,120 150,140 C 130,160 90,150 70,155 C 50,160 40,130 50,110 C 60,95 30,85 40,70 Z" },
+        { nombre: "GP de China (Shanghai)", d: "M 45,60 C 90,40 140,45 165,70 C 140,95 100,70 95,95 C 90,135 155,115 145,150 C 110,165 65,140 50,145 C 35,150 55,100 45,60 Z" },
+        { nombre: "GP de Japón (Suzuka)", d: "M 35,140 C 45,100 70,95 90,115 C 110,135 130,115 160,110 C 170,85 145,60 120,70 C 95,80 80,50 55,55 C 30,60 25,110 35,140 Z" },
+        { nombre: "GP de Baréin (Sakhir)", d: "M 50,50 L 140,50 L 150,80 L 120,95 L 145,120 L 130,150 L 55,145 L 70,110 L 50,90 Z" },
+        { nombre: "GP de Arabia Saudita (Jeddah)", d: "M 35,50 C 80,45 130,40 170,45 C 150,75 120,90 100,115 C 80,140 60,160 45,155 C 30,150 40,110 35,50 Z" },
+        { nombre: "GP de Miami (Miami)", d: "M 35,80 C 70,70 120,65 165,75 C 150,105 130,100 115,125 C 95,155 50,145 40,135 C 30,125 50,100 35,80 Z" },
+        { nombre: "GP de Canadá (Montreal)", d: "M 40,65 L 160,55 L 150,115 L 125,105 L 110,135 L 75,120 L 45,135 Z" },
+        { nombre: "GP de Mónaco (Monte Carlo)", d: "M 60,60 C 95,50 135,55 150,75 C 130,95 105,80 85,110 C 70,135 120,135 110,155 C 80,165 45,140 40,115 C 35,90 45,70 60,60 Z" },
+        { nombre: "GP de España (Barcelona)", d: "M 40,85 C 75,70 125,70 165,80 C 155,110 135,105 120,135 C 95,155 60,145 45,135 C 30,125 50,105 40,85 Z" },
+        { nombre: "GP de Austria (Spielberg)", d: "M 50,90 L 130,60 L 155,90 L 125,100 L 140,135 L 85,130 L 45,120 Z" },
+        { nombre: "GP de Gran Bretaña (Silverstone)", d: "M 50,65 L 115,55 L 145,85 L 120,105 L 150,140 L 85,145 L 45,115 Z" },
+        { nombre: "GP de Bélgica (Spa-Francorchamps)", d: "M 45,80 C 85,60 135,55 160,85 C 140,115 125,105 105,135 C 85,160 55,145 40,130 C 25,115 35,95 45,80 Z" },
+        { nombre: "GP de Hungría (Budapest)", d: "M 55,60 L 135,60 L 145,95 L 120,105 L 135,145 L 65,145 L 50,105 Z" },
+        { nombre: "GP de Países Bajos (Zandvoort)", d: "M 45,75 C 80,65 125,65 155,80 C 145,110 115,110 95,140 C 75,160 50,145 40,125 C 30,105 40,90 45,75 Z" },
+        { nombre: "GP de Italia (Monza)", d: "M 40,130 L 160,130 C 175,110 175,80 150,80 L 70,80 L 55,105 L 35,105 Z" },
+        { nombre: "GP de España (Madrid)", d: "M 45,85 L 125,75 L 155,105 L 120,120 L 140,150 L 75,140 L 40,115 Z" },
+        { nombre: "GP de Azerbaiyán (Baku)", d: "M 40,75 L 155,75 L 165,125 L 130,125 L 115,145 L 70,145 L 50,115 Z" },
+        { nombre: "GP de Singapur (Marina Bay)", d: "M 45,70 L 135,65 L 150,95 L 115,110 L 135,145 L 65,150 L 40,110 Z" },
+        { nombre: "GP de Estados Unidos (Austin)", d: "M 40,95 L 125,65 L 160,95 L 130,110 L 145,145 L 75,140 L 45,125 Z" },
+        { nombre: "GP de México (Hermanos Rodríguez)", d: "M 45,75 L 150,75 L 140,115 L 115,105 L 100,135 L 65,135 L 40,105 Z" },
+        { nombre: "GP de Brasil (Interlagos)", d: "M 55,70 C 95,60 145,65 155,95 C 135,125 110,110 90,140 C 65,160 45,135 40,110 C 35,85 45,75 55,70 Z" },
+        { nombre: "GP de Las Vegas (Las Vegas)", d: "M 40,80 L 160,80 L 155,135 L 120,120 L 95,140 L 65,135 L 45,110 Z" },
+        { nombre: "GP de Catar (Lusail)", d: "M 50,75 L 135,65 L 155,100 L 125,115 L 140,145 L 70,140 L 45,110 Z" },
+        { nombre: "GP de Abu Dabi (Yas Marina)", d: "M 45,90 L 130,65 L 165,100 L 135,115 L 145,145 L 80,135 L 45,115 Z"
+    ];
+
+    // Sorteamos o seleccionamos dinámicamente un circuito del calendario para esta carrera
+    const circuitoActivo = calendarioCircuitos[Math.floor(Math.random() * calendarioCircuitos.length)];
+
+    // Aplicar el trazado real elegido al SVG del HTML
+    if (pistaSVG) {
+        pistaSVG.setAttribute('d', circuitoActivo.d);
+    }
+
+    // Base de datos de escuderías
     const poolEquipos = [
         { nombre: "Alpha Racing", color: "#FF5733", piloto: "J. Doe" },
         { nombre: "Beta Motors", color: "#33FF57", piloto: "A. Smith" },
@@ -30,38 +64,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let miEquipo = null;
     let competidores = [];
-
-    // Algoritmo de rendimiento de clasificación
     let scoreClasificacion = (respuestasCorrectas * 1000) - (tiempoTrivia * 10);
 
-    // Inicializar el simulador de carrera
     configurarGranPremio(scoreClasificacion);
 
     function configurarGranPremio(score) {
-        // Enlaza con la escudería que te tocó en la pantalla de gestión
         miEquipo = poolEquipos.find(e => e.nombre === escuderiaElegida) || poolEquipos[0];
 
-        // Modifica el texto de cabecera en el muro de boxes
+        // Cambiar dinámicamente el encabezado mostrando el circuito real de la fecha
         const infoVueltaElement = document.querySelector('.info-vuelta');
         if (infoVueltaElement) {
-            infoVueltaElement.innerHTML = `📍 GP DEL MURO | VUELTA <span id="num-vuelta">1</span>/70 | CLIMA: 🌤️ ESTABLE`;
+            infoVueltaElement.innerHTML = `📍 ${circuitoActivo.nombre.toUpperCase()} | VUELTA <span id="num-vuelta">1</span>/70`;
         }
 
-        // Mapear la grilla de competidores en base al pool global
         competidores = poolEquipos.map((eq, id) => {
             const esJugador = eq.nombre === miEquipo.nombre;
-            
-            // Ventaja inicial de metros basada en la trivia
-            let ventajaSalida = 0;
-            if (esJugador) {
-                ventajaSalida = Math.max(0, score / 4000) * 0.06; 
-            } else {
-                ventajaSalida = Math.random() * 0.03;
-            }
+            let ventajaSalida = esJugador ? Math.max(0, score / 4000) * 0.06 : Math.random() * 0.03;
 
             return {
                 id: `auto-${id}`,
-                // Muestra tu nombre completo en la tabla si sos el jugador, si no, el del piloto de la IA
                 nombreDisplay: esJugador ? directorFormateado : eq.piloto.toUpperCase(),
                 equipo: eq.nombre,
                 color: eq.color,
@@ -73,10 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         });
 
-        // Dibujar e inyectar los autos en el mapa SVG
         inicializarAutosEnMapa();
-        
-        // Iniciar el bucle de simulación a tiempo real (sin alertas que interrumpan)
         simularCarrera();
     }
 
@@ -84,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!contenedorAutos) return;
         let htmlAutos = "";
         competidores.forEach(comp => {
-            const radio = comp.esJugador ? "7" : "5"; // Tu auto es ligeramente más grande para identificarlo rápido
+            const radio = comp.esJugador ? "7" : "5";
             htmlAutos += `<circle id="${comp.id}" r="${radio}" fill="${comp.color}" stroke="#111" stroke-width="1" />`;
         });
         contenedorAutos.innerHTML = htmlAutos;
@@ -93,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderizarTabla() {
         if (!listaTiming) return;
 
-        // Ordenar las posiciones según vueltas completadas y progreso en la pista
         let ordenados = [...competidores].sort((a, b) => {
             if (b.vueltaActual !== a.vueltaActual) return b.vueltaActual - a.vueltaActual;
             return b.progreso - a.progreso;
@@ -114,13 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function simularCarrera() {
         competidores.forEach(comp => {
-            // El desgaste de los neumáticos reduce proporcionalmente la velocidad máxima
             let factorGoma = comp.desgasteGoma / 100;
             let velocidadActual = comp.velocidadBase * (0.6 + factorGoma * 0.4);
 
             comp.progreso += velocidadActual;
 
-            // Control de paso por línea de meta e incremento de vueltas
             if (comp.progreso > 1) {
                 comp.progreso = 0;
                 comp.vueltaActual++;
@@ -130,32 +145,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Desgaste progresivo de neumáticos vuelta tras vuelta
             if (comp.desgasteGoma > 0) {
                 let tasaDesgaste = velocidadActual * (comp.esJugador ? 6 : 4);
                 comp.desgasteGoma -= tasaDesgaste;
                 if (comp.desgasteGoma < 0) comp.desgasteGoma = 0;
             } else if (!comp.esJugador && comp.desgasteGoma === 0) {
-                // Mecánica de boxes automatizada para los pilotos de la IA
                 comp.desgasteGoma = 100;
             }
 
-            // Actualización visual de las posiciones geométricas en el mapa SVG
             const puntoGrafico = document.getElementById(comp.id);
-            if (pista && puntoGrafico) {
-                const longitudPista = pista.getTotalLength();
-                const puntoEnPista = pista.getPointAtLength(comp.progreso * longitudPista);
+            if (pistaSVG && puntoGrafico) {
+                const longitudPista = pistaSVG.getTotalLength();
+                const puntoEnPista = pistaSVG.getPointAtLength(comp.progreso * longitudPista);
                 puntoGrafico.setAttribute('cx', puntoEnPista.x);
                 puntoGrafico.setAttribute('cy', puntoEnPista.y);
             }
         });
 
-        // Refrescar tabla en cada fotograma
         renderizarTabla();
         requestAnimationFrame(simularCarrera);
     }
 
-    // PANEL DE MANDOS INTERACTIVO: Ritmos del monoplaza
     window.cambiarRitmo = function(ritmo) {
         if (competidores.length === 0) return;
         const jugador = competidores.find(c => c.esJugador);
@@ -174,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Estrategia de cambio de gomas táctil en boxes
     window.entrarABoxes = function() {
         if (competidores.length === 0) return;
         const jugador = competidores.find(c => c.esJugador);
