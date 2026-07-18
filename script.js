@@ -1,17 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. CAPTURA DE PARÁMETROS DE LA CLASIFICACIÓN (Procedentes de trivia.html)
+    // 1. CAPTURA DE PARÁMETROS DESDE LA OFICINA DE GESTIÓN
     const urlParams = new URLSearchParams(window.location.search);
-    const directorFormateado = (urlParams.get('director') || 'MART').toUpperCase().substring(0, 4);
+    
+    // Captura el nombre de director completo (hasta 12 letras) sin recortarlo a 4 caracteres
+    const directorFormateado = (urlParams.get('director') || 'CARLOS').toUpperCase().substring(0, 12);
+    const escuderiaElegida = urlParams.get('escuderia') || 'Alpha Racing';
     const respuestasCorrectas = parseInt(urlParams.get('correctas') || '0', 10);
     const tiempoTrivia = parseFloat(urlParams.get('tiempo') || '0');
 
     // Referencias del DOM de la carrera
     const pista = document.getElementById('pista');
     const contenedorAutos = document.getElementById('contenedor-autos');
-    const txtVuelta = document.getElementById('num-vuelta');
     const listaTiming = document.getElementById('lista-timing');
 
-    // Base de datos fija del campeonato
+    // Base de datos oficial de equipos del campeonato
     const poolEquipos = [
         { nombre: "Alpha Racing", color: "#FF5733", piloto: "J. Doe" },
         { nombre: "Beta Motors", color: "#33FF57", piloto: "A. Smith" },
@@ -29,29 +31,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let miEquipo = null;
     let competidores = [];
 
-    // 2. SISTEMA DE SCORE Y CÁLCULO DE GRILLA DE SALIDA
+    // Algoritmo de rendimiento de clasificación
     let scoreClasificacion = (respuestasCorrectas * 1000) - (tiempoTrivia * 10);
 
-    // Inicializar el campeonato
+    // Inicializar el simulador de carrera
     configurarGranPremio(scoreClasificacion);
 
     function configurarGranPremio(score) {
-        const indiceSorteado = Math.floor(Math.random() * poolEquipos.length);
-        miEquipo = poolEquipos[indiceSorteado];
+        // Enlaza con la escudería que te tocó en la pantalla de gestión
+        miEquipo = poolEquipos.find(e => e.nombre === escuderiaElegida) || poolEquipos[0];
 
-        // Cambiar dinámicamente el encabezado con info de la carrera
+        // Modifica el texto de cabecera en el muro de boxes
         const infoVueltaElement = document.querySelector('.info-vuelta');
         if (infoVueltaElement) {
             infoVueltaElement.innerHTML = `📍 GP DEL MURO | VUELTA <span id="num-vuelta">1</span>/70 | CLIMA: 🌤️ ESTABLE`;
         }
 
-        // Mapear la grilla con las ventajas iniciales del simulador
+        // Mapear la grilla de competidores en base al pool global
         competidores = poolEquipos.map((eq, id) => {
             const esJugador = eq.nombre === miEquipo.nombre;
             
+            // Ventaja inicial de metros basada en la trivia
             let ventajaSalida = 0;
             if (esJugador) {
-                // Ventaja de metros según rendimiento en la trivia
                 ventajaSalida = Math.max(0, score / 4000) * 0.06; 
             } else {
                 ventajaSalida = Math.random() * 0.03;
@@ -59,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return {
                 id: `auto-${id}`,
+                // Muestra tu nombre completo en la tabla si sos el jugador, si no, el del piloto de la IA
                 nombreDisplay: esJugador ? directorFormateado : eq.piloto.toUpperCase(),
                 equipo: eq.nombre,
                 color: eq.color,
@@ -70,12 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         });
 
-        // Dibujar círculos en el circuito SVG
+        // Dibujar e inyectar los autos en el mapa SVG
         inicializarAutosEnMapa();
         
-        // El alert que frenaba el juego fue eliminado por completo desde aquí.
-        
-        // Iniciar el bucle de simulación en vivo
+        // Iniciar el bucle de simulación a tiempo real (sin alertas que interrumpan)
         simularCarrera();
     }
 
@@ -83,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!contenedorAutos) return;
         let htmlAutos = "";
         competidores.forEach(comp => {
-            const radio = comp.esJugador ? "7" : "5";
+            const radio = comp.esJugador ? "7" : "5"; // Tu auto es ligeramente más grande para identificarlo rápido
             htmlAutos += `<circle id="${comp.id}" r="${radio}" fill="${comp.color}" stroke="#111" stroke-width="1" />`;
         });
         contenedorAutos.innerHTML = htmlAutos;
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderizarTabla() {
         if (!listaTiming) return;
 
+        // Ordenar las posiciones según vueltas completadas y progreso en la pista
         let ordenados = [...competidores].sort((a, b) => {
             if (b.vueltaActual !== a.vueltaActual) return b.vueltaActual - a.vueltaActual;
             return b.progreso - a.progreso;
@@ -112,11 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function simularCarrera() {
         competidores.forEach(comp => {
+            // El desgaste de los neumáticos reduce proporcionalmente la velocidad máxima
             let factorGoma = comp.desgasteGoma / 100;
             let velocidadActual = comp.velocidadBase * (0.6 + factorGoma * 0.4);
 
             comp.progreso += velocidadActual;
 
+            // Control de paso por línea de meta e incremento de vueltas
             if (comp.progreso > 1) {
                 comp.progreso = 0;
                 comp.vueltaActual++;
@@ -126,14 +130,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // Desgaste progresivo de neumáticos vuelta tras vuelta
             if (comp.desgasteGoma > 0) {
                 let tasaDesgaste = velocidadActual * (comp.esJugador ? 6 : 4);
                 comp.desgasteGoma -= tasaDesgaste;
                 if (comp.desgasteGoma < 0) comp.desgasteGoma = 0;
             } else if (!comp.esJugador && comp.desgasteGoma === 0) {
+                // Mecánica de boxes automatizada para los pilotos de la IA
                 comp.desgasteGoma = 100;
             }
 
+            // Actualización visual de las posiciones geométricas en el mapa SVG
             const puntoGrafico = document.getElementById(comp.id);
             if (pista && puntoGrafico) {
                 const longitudPista = pista.getTotalLength();
@@ -143,11 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Refrescar tabla en cada fotograma
         renderizarTabla();
         requestAnimationFrame(simularCarrera);
     }
 
-    // PANEL DE MANDOS: Controladores de ritmo de carrera
+    // PANEL DE MANDOS INTERACTIVO: Ritmos del monoplaza
     window.cambiarRitmo = function(ritmo) {
         if (competidores.length === 0) return;
         const jugador = competidores.find(c => c.esJugador);
@@ -166,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Estrategia de cambio de gomas táctil en boxes
     window.entrarABoxes = function() {
         if (competidores.length === 0) return;
         const jugador = competidores.find(c => c.esJugador);
