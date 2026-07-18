@@ -1,31 +1,42 @@
-body {
+/* Reset general de cajas para evitar desbordamientos */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    /* Imagen de fondo: Textura de fibra de carbono/asfalto premium */
+}
+
+body {
     background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop');
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     color: #f8fafc;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overflow: hidden;
     height: 100vh;
+    width: 100vw;
 }
 
+/* Contenedor principal usando Flexbox vertical */
 .pantalla-celular {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    box-sizing: border-box;
-    background-color: rgba(15, 23, 42, 0.85); /* Capa oscura semitransparente para leer los datos */
+    width: 100vw;
+    background-color: rgba(15, 23, 42, 0.85); /* Capa oscura para legibilidad */
 }
 
+/* Tercio Superior: El Circuito */
 .seccion-circuito {
     background-color: rgba(30, 41, 59, 0.9);
     padding: 15px;
     text-align: center;
     border-bottom: 3px solid #e10600;
     height: 35vh;
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .info-vuelta {
@@ -33,27 +44,29 @@ body {
     font-weight: bold;
     color: #cbd5e1;
     letter-spacing: 1px;
+    margin-bottom: 5px;
 }
 
 .mapa-svg {
-    height: calc(100% - 25px);
-    max-width: 100%;
+    height: 80%;
+    width: 100%;
+    max-width: 220px;
 }
 
-/* Línea de pista más visible (estilo asfalto brillante) */
+/* Línea de la pista */
 #pista {
     stroke: #475569;
     stroke-width: 10;
 }
 
+/* Tercio Medio: Lista de Posiciones (Live Timing) */
 .seccion-timing {
     padding: 10px;
     height: 35vh;
     overflow-y: auto;
-    box-sizing: border-box;
 }
 
-/* Filas del Live Timing */
+/* Estructura moderna para las filas de los pilotos */
 .fila-piloto {
     display: flex;
     justify-content: space-between;
@@ -64,31 +77,37 @@ body {
     border-radius: 4px;
     font-size: 14px;
     margin-bottom: 6px;
-    box-sizing: border-box;
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
+/* Destacado para tu auto */
 .tu-auto {
     background-color: rgba(37, 99, 235, 0.3);
     font-weight: bold;
-    animation: pulse 2s infinite;
 }
 
-.goma { color: #f87171; font-weight: bold; }
-.goma-ia { color: #facc15; opacity: 0.8; }
+.goma { 
+    color: #f87171; 
+    font-weight: bold; 
+}
 
+/* Tercio Inferior: Panel de Estrategia */
 .seccion-controles {
     background-color: rgba(30, 41, 59, 0.95);
     padding: 15px;
     border-top: 2px solid #475569;
     height: 30vh;
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
+/* Contenedor de botones de ritmo alineados perfectamente */
 .grid-botones {
     display: flex;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    width: 100%;
 }
 
 .btn {
@@ -100,7 +119,8 @@ body {
     color: #94a3b8;
     background-color: #1e293b;
     font-size: 13px;
-    cursor: pointer;
+    text-align: center;
+    outline: none;
 }
 
 .btn.activo {
@@ -110,6 +130,7 @@ body {
     box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
 }
 
+/* Botón de Boxes */
 .btn-box {
     width: 100%;
     padding: 14px;
@@ -120,4 +141,5 @@ body {
     font-weight: bold;
     font-size: 16px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
+    outline: none;
+    }
