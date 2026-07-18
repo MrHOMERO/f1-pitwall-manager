@@ -3,38 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>F1 Pit Wall Manager - Muro de Boxes</title>
-    <link rel="stylesheet" href="style.css">
+    <title>F1 Pit Wall Manager - Presentación</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0f19;
+            font-family: Arial, sans-serif;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .contenedor-presentacion {
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 360px;
+            box-sizing: border-box;
+        }
+
+        /* Animación de escala: de menor a mayor */
+        .titulo-juego {
+            font-size: 38px;
+            font-weight: 900;
+            color: #f8fafc;
+            margin: 0 0 5px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: aparecerMenorAMayor 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+        }
+
+        .subtitulo-juego {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e10600; /* Rojo F1 */
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin: -5px 0 40px 0;
+            animation: aparecerSuave 1.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Botón de acción principal */
+        .btn-ingresar {
+            background: linear-gradient(135deg, #e10600 0%, #b90500 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 20px rgba(225, 6, 0, 0.4);
+            animation: aparecerSuave 2.2s ease-out forwards;
+            opacity: 0;
+            transition: transform 0.1s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-ingresar:active {
+            transform: scale(0.96);
+        }
+
+        /* Animaciones CSS */
+        @keyframes aparecerMenorAMayor {
+            0% {
+                opacity: 0;
+                transform: scale(0.2);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes aparecerSuave {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- PANTALLA PRINCIPAL: El Muro de Boxes -->
-    <div class="pantalla-celular">
+    <div class="contenedor-presentacion">
+        <!-- El bloque del título animado rústico/industrial -->
+        <h1 class="titulo-juego">PIT WALL</h1>
+        <div class="subtitulo-juego">Manager</div>
         
-        <!-- Tercio Superior: El Circuito SVG -->
-        <div class="seccion-circuito">
-            <div class="info-vuelta">📍 Conectando telemetría... | VUELTA <span id="num-vuelta">1</span>/70</div>
-            <svg viewBox="0 0 200 200" class="mapa-svg">
-                <path id="pista" d="M 50,100 A 50,50 0 1,1 150,100 A 50,50 0 1,1 50,100" fill="none" stroke-linecap="round"/>
-                <g id="contenedor-autos"></g>
-            </svg>
-        </div>
-
-        <!-- Tercio Medio: Tabla de Tiempos (Live Timing) -->
-        <div class="seccion-timing" id="lista-timing"></div>
-
-        <!-- Tercio Inferior: Panel de Estrategia Táctil -->
-        <div class="seccion-controles">
-            <div class="grid-botones">
-                <button class="btn btn-ritmo activo" id="btn-conservar" onclick="cambiarRitmo('conservar')">🔋 Ahorro</button>
-                <button class="btn btn-ritmo" id="btn-normal" onclick="cambiarRitmo('normal')">⏱️ Normal</button>
-                <button class="btn btn-ritmo" id="btn-ataque" onclick="cambiarRitmo('ataque')">🚀 Ataque</button>
-            </div>
-            <button class="btn-box" onclick="entrarABoxes()">⚠️ BOX EN ESTA VUELTA</button>
-        </div>
-
+        <!-- Botón interactivo que te lanza hacia la trivia -->
+        <button class="btn-ingresar" onclick="iniciarSesion()">
+            CONECTAR TELEMETRÍA ⚡
+        </button>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        function iniciarSesion() {
+            // Te redirige directamente a la pantalla de la trivia
+            window.location.href = 'trivia.html';
+        }
+    </script>
 </body>
 </html>
