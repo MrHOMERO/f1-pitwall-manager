@@ -1,0 +1,128 @@
+/* Configuración básica de la pantalla del celular */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #0f172a; /* Fondo azul oscuro/grisáceo tipo telemetría */
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden; /* Evita que la pantalla rebote al deslizar */
+}
+
+/* Contenedor vertical flexible (Los 3 Tercios) */
+.pantalla-celular {
+    display: block; /* Estructura segura para renderizado móvil */
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Tercio Superior: Contenedor del Mapa */
+.seccion-circuito {
+    background-color: #1e293b;
+    padding: 15px;
+    text-align: center;
+    border-bottom: 2px solid #334155;
+    height: 35vh; /* Ocupa el 35% superior de la pantalla */
+    box-sizing: border-box;
+}
+
+.info-vuelta {
+    font-size: 14px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.mapa-svg {
+    height: calc(100% - 30px); /* Se adapta proporcionalmente a la pantalla */
+    max-width: 100%;
+}
+
+/* Tercio Medio: Contenedor del Live Timing */
+.seccion-timing {
+    padding: 15px;
+    background-color: #0f172a;
+    height: 35vh; /* Ocupa el 35% del medio */
+    overflow-y: auto; /* Permite deslizar si hay más pilotos en el fixture */
+    box-sizing: border-box;
+}
+
+.fila-piloto {
+    display: block;
+    padding: 12px;
+    background-color: #1e293b;
+    border-left: 4px solid #e10600; /* Borde rojo de Ferrari/F1 para identificar tu auto */
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Alineación interna del Live Timing */
+.fila-piloto span:first-child {
+    float: left;
+}
+.fila-piloto .goma {
+    float: right;
+    color: #f87171; /* Rojo para gomas Blandas */
+    font-weight: bold;
+}
+
+/* Tercio Inferior: Zona de Mandos de Estrategia */
+.seccion-controles {
+    background-color: #1e293b;
+    padding: 15px;
+    border-top: 2px solid #334155;
+    height: 30vh; /* Ocupa el 30% inferior para acceso fácil con pulgares */
+    box-sizing: border-box;
+}
+
+/* Grid de los 3 botones de ritmo */
+.grid-botones {
+    display: block;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.btn {
+    width: 31%;
+    margin-right: 2%;
+    float: left;
+    padding: 12px 2px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #94a3b8;
+    background-color: #334155;
+    font-size: 13px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.btn:last-child {
+    margin-right: 0;
+}
+
+/* Color del botón de ritmo cuando está seleccionado por el Director */
+.btn.activo {
+    background-color: #2563eb; /* Azul estratégico */
+    color: white;
+}
+
+/* Botón gigante de llamada a Boxes */
+.btn-box {
+    clear: both;
+    width: 100%;
+    padding: 15px;
+    background-color: #e10600; /* Rojo oficial de alarma de F1 */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+/* Reset general de cajas */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
