@@ -3,65 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>F1 Pit Wall Manager</title>
+    <title>F1 Pit Wall Manager - Muro de Boxes</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- FASE 1: Carátula de Presentación (Se oculta a los 4s) -->
-    <div id="pantalla-presentacion" class="pantalla-overlay">
-        <div class="contenido-presentacion">
-            <h1 class="logo-juego">F1 PIT WALL</h1>
-            <h2 class="sub-logo">MANAGER</h2>
-            <div class="barra-carga">
-                <div class="progreso-carga"></div>
-            </div>
-            <p class="txt-carga">CONECTANDO CON EL MURO DE BOXES...</p>
-        </div>
-    </div>
-
-    <!-- FASE 2: Pantalla de Trivia Clasificatoria -->
-    <div id="pantalla-trivia" class="pantalla-overlay oculto">
-        <div class="caja-trivia">
-            <h2 class="titulo-fase">🚦 CLASIFICACIÓN CONTRARRELOJ</h2>
-            <div id="intro-trivia">
-                <p class="alerta-reglas">⚠️ <b>¡ATENCIÓN DIRECTOR!</b> El total de respuestas correctas y el tiempo que demores en contestar determinarán tu lugar en la grilla de salida y la prioridad de tu escudería al comenzar el campeonato.</p>
-                <div class="campo-entrada">
-                    <label>INGRESA TU NOMBRE DE DIRECTOR (MÁX 4 LETRAS):</label>
-                    <input type="text" id="input-director" maxlength="4" placeholder="MART" value="MART">
-                </div>
-                <button class="btn-box" onclick="comenzarTrivia()">INICIAR CLASIFICACIÓN ⏱️</button>
-            </div>
-            
-            <!-- Contenedor dinámico de preguntas (Se llena con JS) -->
-            <div id="juego-trivia" class="oculto">
-                <div class="header-trivia">
-                    <span id="contador-pregunta">Pregunta 1 de 3</span>
-                    <span id="cronometro-trivia">Tiempo: 0.0s</span>
-                </div>
-                <h3 id="texto-pregunta">¿Pregunta?</h3>
-                <div id="opciones-trivia" class="grid-opciones">
-                    <!-- Los botones de opciones se inyectan aquí -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- FASE 3: Pantalla Principal del Juego (El Gran Premio) -->
+    <!-- PANTALLA PRINCIPAL: El Muro de Boxes (Fase 3) -->
     <div class="pantalla-celular">
-        <!-- Tercio Superior: El Circuito -->
+        
+        <!-- Tercio Superior: El Circuito SVG -->
         <div class="seccion-circuito">
-            <div class="info-vuelta">📍 Esperando Clasificación... | VUELTA <span id="num-vuelta">1</span>/70</div>
+            <div class="info-vuelta">📍 Cargando telemetría... | VUELTA <span id="num-vuelta">1</span>/70</div>
             <svg viewBox="0 0 200 200" class="mapa-svg">
                 <path id="pista" d="M 50,100 A 50,50 0 1,1 150,100 A 50,50 0 1,1 50,100" fill="none" stroke-linecap="round"/>
                 <g id="contenedor-autos"></g>
             </svg>
         </div>
 
-        <!-- Tercio Medio: Lista de Posiciones Dinámica -->
-        <div class="seccion-timing" id="lista-timing"></div>
+        <!-- Tercio Medio: Tabla de Tiempos (Live Timing) -->
+        <div class="seccion-timing" id="lista-timing">
+            <!-- Se llena dinámicamente con el script.js -->
+        </div>
 
-        <!-- Tercio Inferior: Panel de Estrategia -->
+        <!-- Tercio Inferior: Panel de Estrategia Táctil -->
         <div class="seccion-controles">
             <div class="grid-botones">
                 <button class="btn btn-ritmo activo" id="btn-conservar" onclick="cambiarRitmo('conservar')">🔋 Ahorro</button>
@@ -70,8 +34,10 @@
             </div>
             <button class="btn-box" onclick="entrarABoxes()">⚠️ BOX EN ESTA VUELTA</button>
         </div>
+
     </div>
 
+    <!-- Enlazamos el script definitivo que ya tenés guardado -->
     <script src="script.js"></script>
 </body>
 </html>
