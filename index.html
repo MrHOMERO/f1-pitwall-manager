@@ -5,10 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>F1 Pit Wall Manager - Muro de Boxes</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos para el Cuadro de Diálogo Sofisticado de Bienvenida */
+        .modal-bienvenida {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(11, 15, 25, 0.95); /* Fondo oscuro translúcido */
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .tarjeta-mensaje {
+            background-color: #1e293b;
+            border: 2px solid #475569;
+            border-top: 5px solid #e10600; /* Rojo F1 */
+            border-radius: 8px;
+            padding: 25px;
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            box-sizing: border-box;
+        }
+
+        .tarjeta-mensaje h2 {
+            font-size: 20px;
+            color: #f8fafc;
+            margin-top: 0;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            font-weight: 900;
+        }
+
+        .tarjeta-mensaje p {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .btn-modal {
+            width: 100%;
+            background: linear-gradient(135deg, #e10600 0%, #b90500 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3);
+        }
+
+        .btn-modal:active {
+            transform: scale(0.98);
+            background: #b90500;
+        }
+
+        .oculto-modal {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- PANTALLA PRINCIPAL: El Muro de Boxes (Fase 3) -->
+    <!-- CUADRO DE DIÁLOGO SOFISTICADO (Aparece solo si no hay datos de trivia) -->
+    <div id="cartel-bienvenida" class="modal-bienvenida oculto-modal">
+        <div class="tarjeta-mensaje">
+            <h2>🏎️ ¡BIENVENIDO DIRECTOR!</h2>
+            <p>Para gestionar tu muro de boxes, primero debes conectar la telemetría e iniciar la sesión de clasificación contrarreloj.</p>
+            <button class="btn-modal" onclick="irAPresentacion()">Configurar Muro ⏱️</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL: El Muro de Boxes -->
     <div class="pantalla-celular">
         
         <!-- Tercio Superior: El Circuito SVG -->
@@ -37,7 +116,22 @@
 
     </div>
 
-    <!-- Enlazamos el script definitivo que ya tenés guardado -->
+    <script>
+        // Lógica de control para el cartel personalizado antes de cargar el juego
+        const urlCheck = new URLSearchParams(window.location.search);
+        const cartel = document.getElementById('cartel-bienvenida');
+
+        if (!urlCheck.has('director') || !urlCheck.has('correctas')) {
+            // Si entra directo, le removemos la clase oculto para mostrar el cartel sofisticado
+            cartel.classList.remove('oculto-modal');
+        }
+
+        function irAPresentacion() {
+            window.location.href = "presentacion.html";
+        }
+    </script>
+
+    <!-- Enlazamos el script.js definitivo -->
     <script src="script.js"></script>
 </body>
 </html>
