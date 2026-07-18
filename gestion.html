@@ -89,7 +89,6 @@
             <div class="cargo-director">Director: <span id="nombre-director">---</span></div>
         </div>
 
-        <!-- SECCIÓN DE ASIGNACIÓN -->
         <div class="seccion-info">
             <h3>🏎️ DETALLES DE ESCUDERÍA</h3>
             <div class="fila-datos">
@@ -102,7 +101,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN DE RECURSOS -->
         <div class="seccion-info">
             <h3>🔧 RECURSOS DE DESARROLLO</h3>
             <div class="fila-datos">
@@ -124,7 +122,6 @@
         const correctas = parseInt(urlParams.get('correctas') || '0', 10);
         const tiempo = parseFloat(urlParams.get('tiempo') || '0');
 
-        // Banco idéntico para emparejar escuderías y pilotos
         const poolEquipos = [
             { nombre: "Alpha Racing", piloto: "J. Doe" },
             { nombre: "Beta Motors", piloto: "A. Smith" },
@@ -139,13 +136,9 @@
             { nombre: "Omega Motorsport", piloto: "S. Vettel" }
         ];
 
-        // Sorteo justo de escudería
         const escuderiaAsignada = poolEquipos[Math.floor(Math.random() * poolEquipos.length)];
-
-        // Calcular puntos basados en aciertos
         const puntosGanados = correctas * 100;
 
-        // Inyectar datos en la pantalla
         document.getElementById('nombre-director').innerText = director;
         document.getElementById('txt-equipo').innerText = escuderiaAsignada.nombre;
         document.getElementById('txt-piloto').innerText = escuderiaAsignada.piloto;
@@ -153,8 +146,8 @@
         document.getElementById('txt-puntos').innerText = `+${puntosGanados} PTS`;
 
         function irALaCarrera() {
-            // Enviamos los datos completos hacia la pista final
-            window.location.href = `index.html?director=${encodeURIComponent(director)}&escuderia=${encodeURIComponent(escuderiaAsignada.nombre)}&correctas=${correctas}&tiempo=${tiempo}`;
+            // CORREGIDO: Ahora redirige a 'juego.html' en vez de 'index.html'
+            window.location.href = `juego.html?director=${encodeURIComponent(director)}&escuderia=${encodeURIComponent(escuderiaAsignada.nombre)}&correctas=${correctas}&tiempo=${tiempo}`;
         }
     </script>
 </body>
