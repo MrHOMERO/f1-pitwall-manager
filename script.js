@@ -1,116 +1,165 @@
 document.addEventListener('DOMContentLoaded', () => {
     const pista = document.getElementById('pista');
     const auto = document.getElementById('auto');
-    const txtGoma = document.getElementById('vida-goma');
     const txtVuelta = document.getElementById('num-vuelta');
     const listaTiming = document.getElementById('lista-timing');
 
-    // Base de datos de los 11 equipos oficiales actuales
-    const equiposF1 = [
-        { nombre: "Ferrari", color: "#E10600", piloto: "Charles Leclerc" },
-        { nombre: "Red Bull", color: "#0C1E42", piloto: "Max Verstappen" },
-        { nombre: "Mercedes", color: "#27F4D2", piloto: "Lewis Hamilton" },
-        { nombre: "McLaren", color: "#FF8000", piloto: "Lando Norris" },
-        { nombre: "Aston Martin", color: "#229971", piloto: "Fernando Alonso" },
-        { nombre: "Alpine", color: "#0093CC", piloto: "Pierre Gasly" },
-        { nombre: "Williams", color: "#00A0DE", piloto: "Alex Albon" },
-        { nombre: "RB Visa", color: "#6692FF", piloto: "Yuki Tsunoda" },
-        { nombre: "Sauber", color: "#52E252", piloto: "Nico Hulkenberg" },
-        { nombre: "Haas", color: "#B6BABD", piloto: "Oliver Bearman" },
-        { nombre: "Cadillac", color: "#FFFFFF", piloto: "Esteban Ocon" } // El nuevo integrante de la parrilla
+    // 1. Base de datos con nombres ficticios/temporales para pruebas
+    const nombresCircuitos = [
+        "Gran Premio del Norte", "Circuito del Valle", "Autódromo de la Costa", 
+        "Street Circuit Capital", "Speedway Industrial", "GP del Desierto"
     ];
 
-    // Sorteo automático del equipo para el jugador
-    const miEquipo = equiposF1[Math.floor(Math.random() * equiposF1.length)];
+    const poolEquipos = [
+        { nombre: "Alpha Racing", color: "#FF5733", piloto: "J. Doe" },
+        { nombre: "Beta Motors", color: "#33FF57", piloto: "A. Smith" },
+        { nombre: "Gamma Team", color: "#3357FF", piloto: "P. Müller" },
+        { nombre: "Delta Sport", color: "#F3FF33", piloto: "Y. Sato" },
+        { nombre: "Epsilon F1", color: "#FF33F3", piloto: "M. Bianchi" },
+        { nombre: "Zeta Scuderia", color: "#33FFF0", piloto: "L. Rossi" },
+        { nombre: "Eta Engineering", color: "#FFAF33", piloto: "E. Jones" },
+        { nombre: "Theta Racing", color: "#AF33FF", piloto: "K. Alwan" },
+        { nombre: "Iota Performance", color: "#33FFAF", piloto: "N. Nielsen" },
+        { nombre: "Kappa GP", color: "#FF3333", piloto: "C. Dupont" },
+        { nombre: "Omega Motorsport", color: "#FFFFFF", piloto: "S. Vettel" }
+    ];
 
-    // Configuración del nombre del Director
+    // Elegir circuito al azar para esta sesión
+    const circuitoActual = nombresCircuitos[Math.floor(Math.random() * nombresCircuitos.length)];
+    const infoVueltaElement = document.querySelector('.info-vuelta');
+    if (infoVueltaElement) {
+        infoVueltaElement.innerHTML = `📍 ${circuitoActual} | VUELTA <span id="num-vuelta">1</span>/70 | CLIMA: 🌤️ 12% Lluvia`;
+    }
+
+    // Configuración del Director de Equipo (Jugador)
     const nombreUsuario = prompt("Introduce tu nombre de Director de Equipo:", "MART");
     const directorFormateado = nombreUsuario ? nombreUsuario.toUpperCase().substring(0, 4) : "MART";
-    
-    // Cambiar color del punto del auto según el equipo sorteado
+
+    // Asignar equipo aleatorio al jugador
+    const indiceSorteado = Math.floor(Math.random() * poolEquipos.length);
+    const miEquipo = poolEquipos[indiceSorteado];
+
+    // Construir la parrilla total de 11 competidores en base a los datos
+    let competidores = poolEquipos.map(eq => {
+        const esJugador = eq.nombre === miEquipo.nombre;
+        return {
+            nombreDisplay: esJugador ? directorFormateado : eq.piloto.toUpperCase(),
+            equipo: eq.nombre,
+            color: eq.color,
+            esJugador: esJugador,
+            progreso: 0,
+            velocidadBase: esJugador ? 0.0016 : 0.0013 + (Math.random() * 0.0006), // Pequeña variación de velocidad para la IA
+            desgasteGoma: 100,
+            vueltaActual: 1
+        };
+    });
+
+    // Cambiar color del punto del auto en el mapa según el equipo que te tocó
     if (auto) auto.setAttribute('fill', miEquipo.color);
 
-    let progreso = 0;
-    let velocidad = 0.0016; 
-    let desgasteGoma = 100;
-    let numeroVuelta = 1;
-
-    // Generar la tabla de posiciones en pantalla (Live Timing)
-    function actualizarLiveTiming() {
+    // 2. Renderizado de la tabla de posiciones en pantalla (Live Timing)
+    function renderizarTabla() {
         if (!listaTiming) return;
-        
-        // Ordenamos los equipos (aquí simularemos que vas primero, luego agregaremos IA)
-        let htmlContenido = `
-            <div class="fila-piloto tu-auto" style="border-left-color: ${miEquipo.color}">
-                <span class="info-izquierda">1º <b>${directorFormateado}</b> (${miEquipo.nombre})</span>
-                <span class="goma">🔴 <span id="vida-goma">${Math.floor(desgasteGoma)}</span>%</span>
-            </div>
-        `;
 
-        equiposF1.forEach((eq, index) => {
-            if (eq.nombre !== miEquipo.nombre) {
-                htmlContenido += `
-                    <div class="fila-piloto" style="border-left-color: ${eq.color}">
-                        <span class="info-izquierda">${index + 2}º ${eq.piloto.split(' ')[1].toUpperCase()} (${eq.nombre})</span>
-                        <span class="goma-ia">🟡 85%</span>
-                    </div>
-                `;
+        // Ordenar competidores según quién va ganando la carrera (mayor vuelta y mayor progreso)
+        competidores.sort((a, b) => {
+            if (b.vueltaActual !== a.vueltaActual) {
+                return b.vueltaActual - a.vueltaActual;
             }
+            return b.progreso - a.progreso;
+        });
+
+        let htmlContenido = "";
+        competidores.forEach((comp, index) => {
+            const claseTuAuto = comp.esJugador ? "tu-auto" : "";
+            const iconoGoma = comp.desgasteGoma > 40 ? "🔴" : comp.desgasteGoma > 15 ? "🟡" : "⚪";
+            
+            htmlContenido += `
+                <div class="fila-piloto ${claseTuAuto}" style="border-left-color: ${comp.color}; margin-bottom: 6px;">
+                    <span>${index + 1}º <b>${comp.nombreDisplay}</b> (${comp.equipo})</span>
+                    <span class="goma">${iconoGoma} ${Math.floor(comp.desgasteGoma)}%</span>
+                </div>
+            `;
         });
         listaTiming.innerHTML = htmlContenido;
     }
 
+    // 3. Motor de física y simulación del tiempo real
     function simularCarrera() {
-        let factorGoma = desgasteGoma / 100;
-        progreso += velocidad * (0.5 + factorGoma * 0.5);
+        competidores.forEach(comp => {
+            // Factor de rendimiento según desgaste de neumáticos
+            let factorGoma = comp.desgasteGoma / 100;
+            let velocidadActual = comp.velocidadBase * (0.6 + factorGoma * 0.4);
 
-        if (progreso > 1) {
-            progreso = 0;
-            numeroVuelta++;
-            if (txtVuelta) txtVuelta.innerText = numeroVuelta;
-        }
+            // Mover auto
+            comp.progreso += velocidadActual;
 
-        if (desgasteGoma > 0) {
-            let tasaDesgaste = velocidad * 6; 
-            desgasteGoma -= tasaDesgaste;
-            if (desgasteGoma < 0) desgasteGoma = 0;
-            
-            // Actualizar el porcentaje en vivo en la pantalla
-            const miGomaPantalla = document.getElementById('vida-goma');
-            if (miGomaPantalla) miGomaPantalla.innerText = Math.floor(desgasteGoma);
-        }
+            // Control de paso por meta
+            if (comp.progreso > 1) {
+                comp.progreso = 0;
+                comp.vueltaActual++;
+                
+                // Si el jugador pasa por meta, actualizamos el contador global superior
+                if (comp.esJugador) {
+                    const txtVueltaDinamico = document.getElementById('num-vuelta');
+                    if (txtVueltaDinamico) txtVueltaDinamico.innerText = comp.vueltaActual;
+                }
+            }
 
-        if (pista && auto) {
+            // Desgaste de neumáticos simétrico
+            if (comp.desgasteGoma > 0) {
+                let tasaDesgaste = velocidadActual * (comp.esJugador ? 6 : 4);
+                comp.desgasteGoma -= tasaDesgaste;
+                if (comp.desgasteGoma < 0) comp.desgasteGoma = 0;
+            } else if (!comp.esJugador && comp.desgasteGoma === 0) {
+                // La IA entra a boxes automáticamente si se queda sin goma
+                comp.desgasteGoma = 100;
+            }
+        });
+
+        // Mover físicamente el punto del jugador en el mapa SVG
+        const jugador = competidores.find(c => c.esJugador);
+        if (pista && auto && jugador) {
             const longitudPista = pista.getTotalLength();
-            const puntoEnPista = pista.getPointAtLength(progreso * longitudPista);
+            const puntoEnPista = pista.getPointAtLength(jugador.progreso * longitudPista);
             auto.setAttribute('cx', puntoEnPista.x);
             auto.setAttribute('cy', puntoEnPista.y);
         }
 
+        // Renderizar cambios visuales
+        renderizarTabla();
+
+        // Siguiente cuadro de animación
         requestAnimationFrame(simularCarrera);
     }
 
+    // 4. Interacciones del panel de control
     window.cambiarRitmo = function(ritmo) {
+        const jugador = competidores.find(c => c.esJugador);
+        if (!jugador) return;
+
         document.querySelectorAll('.btn-ritmo').forEach(b => b.classList.remove('activo'));
+        
         if (ritmo === 'conservar') {
-            velocidad = 0.0008;
+            jugador.velocidadBase = 0.0010;
             document.getElementById('btn-conservar').classList.add('activo');
         } else if (ritmo === 'normal') {
-            velocidad = 0.0016;
+            jugador.velocidadBase = 0.0017;
             document.getElementById('btn-normal').classList.add('activo');
         } else if (ritmo === 'ataque') {
-            velocidad = 0.0032;
+            jugador.velocidadBase = 0.0030;
             document.getElementById('btn-ataque').classList.add('activo');
         }
     };
 
     window.entrarABoxes = function() {
-        desgasteGoma = 100;
-        actualizarLiveTiming();
-        alert(`🏎️ Parada en Boxes de ${miEquipo.nombre} completada. ¡Gomas nuevas!`);
+        const jugador = competidores.find(c => c.esJugador);
+        if (jugador) {
+            jugador.desgasteGoma = 100;
+            alert(`🏎️ Parada en boxes realizada para ${jugador.equipo}. Neumáticos nuevos.`);
+        }
     };
 
-    // Inicializar
-    actualizarLiveTiming();
+    // Lanzar juego
     simularCarrera();
 });
