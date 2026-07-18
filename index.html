@@ -10,16 +10,18 @@
     <div class="pantalla-celular">
         <!-- Tercio Superior: El Circuito -->
         <div class="seccion-circuito">
-            <div class="info-vuelta">VUELTA <span id="num-vuelta">1</span>/70 | CLIMA: 🌤️ 12% Lluvia</div>
+            <div class="info-vuelta">📍 Cargando Circuito... | VUELTA <span id="num-vuelta">1</span>/70</div>
             <svg viewBox="0 0 200 200" class="mapa-svg">
+                <!-- Trazado de la pista (Óvalo) -->
                 <path id="pista" d="M 50,100 A 50,50 0 1,1 150,100 A 50,50 0 1,1 50,100" fill="none" stroke-linecap="round"/>
-                <circle id="auto" r="7"/>
+                <!-- Contenedor dinámico donde JavaScript dibuja los 11 autos -->
+                <g id="contenedor-autos"></g>
             </svg>
         </div>
 
         <!-- Tercio Medio: Lista de Posiciones Dinámica -->
         <div class="seccion-timing" id="lista-timing">
-            <!-- JavaScript va a dibujar aquí los 11 equipos en tiempo real -->
+            <!-- JavaScript dibuja la parrilla acá adentro -->
         </div>
 
         <!-- Tercio Inferior: Panel de Estrategia -->
