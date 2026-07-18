@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>F1 Pit Wall Manager - Muro de Boxes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- PANTALLA PRINCIPAL: El Muro de Boxes (Fase Final) -->
+    <div class="pantalla-celular">
+        
+        <!-- Tercio Superior: El Circuito SVG Dinámico -->
+        <div class="seccion-circuito">
+            <div class="info-vuelta">📍 Conectando telemetría... | VUELTA <span id="num-vuelta">1</span>/70</div>
+            <svg viewBox="0 0 200 200" class="mapa-svg">
+                <path id="pista" d="M 50,100 A 50,50 0 1,1 150,100 A 50,50 0 1,1 50,100" fill="none" stroke-linecap="round"/>
+                <g id="contenedor-autos"></g>
+            </svg>
+        </div>
+
+        <!-- Tercio Medio: Tabla de Tiempos en Vivo (Live Timing) -->
+        <div class="seccion-timing" id="lista-timing">
+            <!-- Se llena dinámicamente con el script.js -->
+        </div>
+
+        <!-- Tercio Inferior: Panel de Estrategia Táctil -->
+        <div class="seccion-controles">
+            <div class="grid-botones">
+                <button class="btn btn-ritmo activo" id="btn-conservar" onclick="cambiarRitmo('conservar')">🔋 Ahorro</button>
+                <button class="btn btn-ritmo" id="btn-normal" onclick="cambiarRitmo('normal')">⏱️ Normal</button>
+                <button class="btn btn-ritmo" id="btn-ataque" onclick="cambiarRitmo('ataque')">🚀 Ataque</button>
+            </div>
+            <button class="btn-box" onclick="entrarABoxes()">⚠️ BOX EN ESTA VUELTA</button>
+        </div>
+
+    </div>
+
+    <!-- Enlazamos tu script.js definitivo -->
+    <script src="script.js"></script>
+</body>
+</html>
