@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>F1 Pit Wall Manager - Presentación</title>
+    <style>
+        /* Estilos específicos y limpios para la carátula */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0f19;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .contenedor-presentacion {
+            text-align: center;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .logo-principal {
+            font-size: 36px;
+            font-weight: 900;
+            color: #f8fafc;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .sub-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #e10600; /* Rojo F1 */
+            letter-spacing: 6px;
+            margin-top: -5px;
+            margin-bottom: 35px;
+        }
+
+        .riel-carga {
+            width: 100%;
+            height: 6px;
+            background-color: #1e293b;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .linea-progreso {
+            width: 0%;
+            height: 100%;
+            background-color: #e10600;
+            animation: deslizarCarga 4s linear forwards;
+        }
+
+        .texto-estado {
+            font-size: 11px;
+            color: #64748b;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        @keyframes deslizarCarga {
+            to { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-presentacion">
+        <h1 class="logo-principal">F1 PIT WALL</h1>
+        <h2 class="sub-logo">MANAGER</h2>
+        <div class="riel-carga">
+            <div class="linea-progreso"></div>
+        </div>
+        <p class="texto-estado">Conectando con el muro de boxes...</p>
+    </div>
+
+    <script>
+        // Al pasar exactamente 4 segundos, salta automáticamente a la trivia
+        setTimeout(() => {
+            window.location.href = "trivia.html";
+        }, 4000);
+    </script>
+
+</body>
+</html>
