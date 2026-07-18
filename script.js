@@ -1,7 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. CAPTURA DE PARÁMETROS DESDE LA OFICINA DE GESTIÓN
+    // 1. CAPTURA DE PARÁMETROS SEGURA (CON RESPALDOS POR SI ENTRÁS DIRECTO)
     const urlParams = new URLSearchParams(window.location.search);
-    const directorFormateado = (urlParams.get('director') || 'CARLOS').toUpperCase().substring(0, 12);
+    
+    // Si no hay director, por defecto asignamos tu nombre
+    const directorParam = urlParams.get('director') || 'CARLOS';
+    const directorFormateado = directorParam.toUpperCase().substring(0, 12);
+    
     const escuderiaElegida = urlParams.get('escuderia') || 'Alpha Racing';
     const respuestasCorrectas = parseInt(urlParams.get('correctas') || '0', 10);
     const tiempoTrivia = parseFloat(urlParams.get('tiempo') || '0');
@@ -39,15 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
         { nombre: "GP de Abu Dabi (Yas Marina)", d: "M 45,90 L 130,65 L 165,100 L 135,115 L 145,145 L 80,135 L 45,115 Z"
     ];
 
-    // Sorteamos o seleccionamos dinámicamente un circuito del calendario para esta carrera
+    // Selección aleatoria del circuito activo
     const circuitoActivo = calendarioCircuitos[Math.floor(Math.random() * calendarioCircuitos.length)];
 
-    // Aplicar el trazado real elegido al SVG del HTML
+    // Aplicar el trazado al SVG de forma segura
     if (pistaSVG) {
         pistaSVG.setAttribute('d', circuitoActivo.d);
     }
 
-    // Base de datos de escuderías
+    // Pool de escuderías
     const poolEquipos = [
         { nombre: "Alpha Racing", color: "#FF5733", piloto: "J. Doe" },
         { nombre: "Beta Motors", color: "#33FF57", piloto: "A. Smith" },
@@ -71,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function configurarGranPremio(score) {
         miEquipo = poolEquipos.find(e => e.nombre === escuderiaElegida) || poolEquipos[0];
 
-        // Cambiar dinámicamente el encabezado mostrando el circuito real de la fecha
         const infoVueltaElement = document.querySelector('.info-vuelta');
         if (infoVueltaElement) {
             infoVueltaElement.innerHTML = `📍 ${circuitoActivo.nombre.toUpperCase()} | VUELTA <span id="num-vuelta">1</span>/70`;
@@ -156,9 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const puntoGrafico = document.getElementById(comp.id);
             if (pistaSVG && puntoGrafico) {
                 const longitudPista = pistaSVG.getTotalLength();
-                const puntoEnPista = pistaSVG.getPointAtLength(comp.progreso * longitudPista);
-                puntoGrafico.setAttribute('cx', puntoEnPista.x);
-                puntoGrafico.setAttribute('cy', puntoEnPista.y);
+                // Verificación de seguridad para evitar que falle si la pista se redibuja rápido
+                if (longitudPista && longitudPista > 0) {
+                    const puntoEnPista = pistaSVG.getPointAtLength(comp.progreso * longitudPista);
+                    puntoGrafico.setAttribute('cx', puntoEnPista.x);
+                    puntoGrafico.setAttribute('cy', puntoEnPista.y);
+                }
             }
         });
 
