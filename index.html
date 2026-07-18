@@ -5,48 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>F1 Pit Wall Manager - Muro de Boxes</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Pantalla negra de transición rápida */
-        .cortina-negra {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #0b0f19; /* El color oscuro industrial del juego */
-            z-index: 10000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .oculto-inicial {
-            display: none !important;
-        }
-    </style>
-    <script>
-        // FILTRO EVOLUCIONADO: Comprobamos los datos antes de que se dibuje nada en pantalla
-        const urlCheck = new URLSearchParams(window.location.search);
-        const tieneDatos = urlCheck.has('director') && urlCheck.has('correctas');
-
-        if (!tieneDatos) {
-            // Si entra directo de cero, espera 0.5 segundos en la pantalla negra y desvía a la presentación
-            setTimeout(() => {
-                window.location.replace("presentacion.html");
-            }, 500);
-        }
-    </script>
 </head>
 <body>
-
-    <!-- Cortina de carga: si viene de la trivia se oculta por script, si entra de cero se queda negra hasta redirigir -->
-    <div id="pantalla-bloqueo" class="cortina-negra"></div>
 
     <!-- PANTALLA PRINCIPAL: El Muro de Boxes -->
     <div class="pantalla-celular">
         
         <!-- Tercio Superior: El Circuito SVG -->
         <div class="seccion-circuito">
-            <div class="info-vuelta">📍 Cargando telemetría... | VUELTA <span id="num-vuelta">1</span>/70</div>
+            <div class="info-vuelta">📍 Conectando telemetría... | VUELTA <span id="num-vuelta">1</span>/70</div>
             <svg viewBox="0 0 200 200" class="mapa-svg">
                 <path id="pista" d="M 50,100 A 50,50 0 1,1 150,100 A 50,50 0 1,1 50,100" fill="none" stroke-linecap="round"/>
                 <g id="contenedor-autos"></g>
@@ -54,9 +21,7 @@
         </div>
 
         <!-- Tercio Medio: Tabla de Tiempos (Live Timing) -->
-        <div class="seccion-timing" id="lista-timing">
-            <!-- Se llena dinámicamente con el script.js -->
-        </div>
+        <div class="seccion-timing" id="lista-timing"></div>
 
         <!-- Tercio Inferior: Panel de Estrategia Táctil -->
         <div class="seccion-controles">
@@ -70,14 +35,6 @@
 
     </div>
 
-    <script>
-        // Si el usuario efectivamente completó la trivia, removemos la pantalla negra para mostrar el juego al instante
-        if (tieneDatos) {
-            document.getElementById('pantalla-bloqueo').classList.add('oculto-inicial');
-        }
-    </script>
-
-    <!-- Enlazamos el script.js definitivo -->
     <script src="script.js"></script>
 </body>
 </html>
