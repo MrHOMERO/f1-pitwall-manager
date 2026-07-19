@@ -4,36 +4,37 @@
     <meta charset="UTF-8">
     <title>F1 Pit Wall Manager</title>
     <style>
-        body { margin: 0; background: #111; color: #fff; font-family: sans-serif; }
-        .pantalla-celular { display: flex; flex-direction: column; height: 100vh; }
-        .seccion-circuito { flex: 2; position: relative; background: #222; }
-        .info-vuelta { padding: 10px; background: #333; display: flex; justify-content: space-between; align-items: center; }
-        #modal-boxes { display:none; position:fixed; top:20%; left:10%; width:80%; background:#222; border: 2px solid #555; padding:20px; border-radius:10px; z-index:1000; text-align:center; }
-        .btn { padding: 10px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        .tercio { height: 33.33vh; border-bottom: 1px solid #333; position: relative; }
+        #pantalla-largada { position: fixed; top: 0; z-index: 9999; width: 100%; height: 100%; background: #000; display: flex; justify-content: center; align-items: center; }
+        .luz { width: 50px; height: 70px; background: #333; border-radius: 5px; margin: 0 10px; }
+        #modal-boxes { position: fixed; top: 20%; left: 20%; width: 60%; background: #222; padding: 20px; border: 2px solid #fff; display: none; z-index: 1000; }
+        .btn-ritmo { padding: 10px; margin: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="pantalla-celular">
-        <div class="seccion-circuito">
-            <div class="info-vuelta" id="header-carrera"></div>
-            <div id="telemetria" style="padding:5px; font-size:0.8rem;">
-                Estado: <span id="estado-neumatico">Gomas: Blando | Desgaste: 100%</span>
-            </div>
-            <svg viewBox="0 0 200 200" class="mapa-svg">
-                <path id="pista" d="" fill="none" stroke="#666" stroke-width="2"/>
-                <g id="contenedor-autos"></g>
-            </svg>
+    <div id="pantalla-largada"><div id="semaforos" style="display:flex;"><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div></div></div>
+
+    <div id="pantalla-carrera" style="display:none;">
+        <div class="tercio" id="seccion-circuito">
+            <svg viewBox="0 0 200 200"><path id="pista" d="" fill="none" stroke="#666" stroke-width="2"/><g id="contenedor-autos"></g></svg>
         </div>
-        <button onclick="abrirBoxes()">GESTIONAR BOXES</button>
+        <div class="tercio" id="seccion-timing"><div id="lista-timing"></div></div>
+        <div class="tercio" id="seccion-controles">
+            <button class="btn-ritmo" onclick="cambiarRitmo('conservar')">Cuidar</button>
+            <button class="btn-ritmo" onclick="cambiarRitmo('normal')">Normal</button>
+            <button class="btn-ritmo" onclick="cambiarRitmo('ataque')">Atacar</button>
+            <button onclick="abrirModalBoxes()">BOXES</button>
+        </div>
     </div>
 
     <div id="modal-boxes">
-        <h3>SELECCIÓN DE NEUMÁTICOS</h3>
-        <button class="btn" style="background:#ff4444" onclick="cambiarGomas('blando')">BLANDO</button>
-        <button class="btn" style="background:#ffcc00" onclick="cambiarGomas('medio')">MEDIO</button>
-        <button class="btn" style="background:#ffffff" onclick="cambiarGomas('duro')">DURO</button>
+        <h3>Estrategia</h3>
+        <button onclick="cambiarGomas('blando')">Blando</button>
+        <button onclick="cambiarGomas('medio')">Medio</button>
+        <button onclick="cambiarGomas('duro')">Duro</button>
+        <button onclick="cambiarGomas('lluvia')">Lluvia</button>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
