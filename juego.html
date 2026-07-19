@@ -2,39 +2,57 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>F1 Pit Wall Manager</title>
     <style>
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
-        .tercio { height: 33.33vh; border-bottom: 1px solid #333; position: relative; }
-        #pantalla-largada { position: fixed; top: 0; z-index: 9999; width: 100%; height: 100%; background: #000; display: flex; justify-content: center; align-items: center; }
-        .luz { width: 50px; height: 70px; background: #333; border-radius: 5px; margin: 0 10px; }
-        #modal-boxes { position: fixed; top: 20%; left: 20%; width: 60%; background: #222; padding: 20px; border: 2px solid #fff; display: none; z-index: 1000; }
-        .btn-ritmo { padding: 10px; margin: 5px; cursor: pointer; }
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; height: 100vh; }
+        .tercio { height: 33.33vh; width: 100%; border-bottom: 1px solid #333; position: relative; box-sizing: border-box; }
+        
+        /* Pantalla de Largada */
+        #pantalla-largada { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; z-index: 9999; justify-content: center; align-items: center; }
+        .luz { width: 60px; height: 60px; background: #333; border-radius: 50%; margin: 0 10px; transition: background 0.3s; }
+        
+        /* Controles y Modal */
+        #lista-timing { height: 100%; overflow-y: auto; font-size: 0.9rem; padding: 5px; }
+        #modal-boxes { position: fixed; top: 15%; left: 10%; width: 80%; background: #222; padding: 20px; border: 2px solid #fff; display: none; z-index: 1000; text-align: center; }
+        button { padding: 15px; margin: 5px; font-size: 1rem; border-radius: 8px; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="pantalla-largada"><div id="semaforos" style="display:flex;"><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div></div></div>
 
-    <div id="pantalla-carrera" style="display:none;">
+    <!-- Pantalla de Largada -->
+    <div id="pantalla-largada">
+        <div id="semaforos" style="display:flex;">
+            <div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Carrera -->
+    <div id="pantalla-carrera">
         <div class="tercio" id="seccion-circuito">
-            <svg viewBox="0 0 200 200"><path id="pista" d="" fill="none" stroke="#666" stroke-width="2"/><g id="contenedor-autos"></g></svg>
+            <svg viewBox="0 0 200 200" style="width:100%; height:100%;"><path id="pista" d="" fill="none" stroke="#666" stroke-width="2"/><g id="contenedor-autos"></g></svg>
         </div>
         <div class="tercio" id="seccion-timing"><div id="lista-timing"></div></div>
-        <div class="tercio" id="seccion-controles">
-            <button class="btn-ritmo" onclick="cambiarRitmo('conservar')">Cuidar</button>
-            <button class="btn-ritmo" onclick="cambiarRitmo('normal')">Normal</button>
-            <button class="btn-ritmo" onclick="cambiarRitmo('ataque')">Atacar</button>
-            <button onclick="abrirModalBoxes()">BOXES</button>
+        <div class="tercio" id="seccion-controles" style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center;">
+            <button onclick="cambiarRitmo('conservar')">CUIDAR</button>
+            <button onclick="cambiarRitmo('normal')">NORMAL</button>
+            <button onclick="cambiarRitmo('ataque')">ATACAR</button>
+            <button style="background:red; color:white;" onclick="abrirModalBoxes()">BOXES</button>
         </div>
     </div>
 
     <div id="modal-boxes">
-        <h3>Estrategia</h3>
+        <h3>Estrategia de Neumáticos</h3>
         <button onclick="cambiarGomas('blando')">Blando</button>
         <button onclick="cambiarGomas('medio')">Medio</button>
         <button onclick="cambiarGomas('duro')">Duro</button>
         <button onclick="cambiarGomas('lluvia')">Lluvia</button>
+        <br><br><button onclick="document.getElementById('modal-boxes').style.display='none'">CANCELAR</button>
     </div>
+
+    <!-- Botón para iniciar desde el menú principal -->
+    <button id="btn-iniciar" style="position:fixed; bottom:20px; right:20px; z-index:10;" onclick="iniciarLargada()">IR AL MURO</button>
+
     <script src="script.js"></script>
 </body>
 </html>
