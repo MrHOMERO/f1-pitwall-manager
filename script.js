@@ -1,44 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. VARIABLES GLOBALES Y CONFIGURACIÓN
     const urlParams = new URLSearchParams(window.location.search);
     const director = (urlParams.get('director') || 'CARLOS').toUpperCase().substring(0, 12);
-    const escuderiaElegida = urlParams.get('escuderia') || 'Alpha Racing';
     
-    let carreraPausada = true; // El juego empieza detenido
-    let clima = 'seco';
-
-    const poolEquipos = [
-        { nombre: "Alpha Racing", color: "#FF5733", p1: "J. DOE", p2: "A. X" },
-        { nombre: "Beta Motors", color: "#33FF57", p1: "A. SMITH", p2: "B. Y" },
-        { nombre: "Gamma Team", color: "#3357FF", p1: "P. MÜLLER", p2: "C. Z" },
-        { nombre: "Delta Sport", color: "#F3FF33", p1: "Y. SATO", p2: "D. W" },
-        { nombre: "Epsilon F1", color: "#FF33F3", p1: "M. BIANCHI", p2: "E. V" },
-        { nombre: "Zeta Scuderia", color: "#33FFF0", p1: "L. ROSSI", p2: "F. U" },
-        { nombre: "Eta Engineering", color: "#FFAF33", p1: "E. JONES", p2: "G. T" },
-        { nombre: "Theta Racing", color: "#AF33FF", p1: "K. ALWAN", p2: "H. S" },
-        { nombre: "Iota Performance", color: "#33FFAF", p1: "N. NIELSEN", p2: "I. R" },
-        { nombre: "Kappa GP", color: "#FF3333", p1: "C. DUPONT", p2: "J. Q" },
-        { nombre: "Omega Motorsport", color: "#FFFFFF", p1: "S. VETTEL", p2: "K. P" }
-    ];
-
+    let carreraPausada = true; 
     let autos = [];
-    poolEquipos.forEach((eq, idx) => {
-        autos.push({ id: `p${idx*2}`, piloto: (eq.nombre === escuderiaElegida ? director : eq.p1), equipo: eq.nombre, tipoGoma: 'blando', desgaste: 100, progreso: Math.random() * 0.02, esJugador: (eq.nombre === escuderiaElegida && idx === 0), color: eq.color, vel: 0.0014 });
-        autos.push({ id: `p${idx*2+1}`, piloto: eq.p2, equipo: eq.nombre, tipoGoma: 'blando', desgaste: 100, progreso: Math.random() * 0.02, esJugador: false, color: eq.color, vel: 0.0013 });
-    });
 
-    // Dibujar pista y autos
-    document.getElementById('pista').setAttribute('d', "M 120,130 L 120,110 C 120,80 150,70 170,80 L 180,100 L 160,110 L 160,130 L 120,130 M 120,130 C 100,130 80,130 70,120 C 50,100 40,80 50,60 C 60,40 80,30 100,30 C 130,30 150,50 150,70 L 140,70 C 140,55 120,45 100,45 C 80,45 70,60 70,80 C 70,100 90,115 110,115 L 120,115");
+    // Inicializar pilotos
+    for (let i = 0; i < 22; i++) {
+        autos.push({ id: `p${i}`, piloto: (i===0 ? director : `PILOTO ${i+1}`), tipoGoma: 'blando', desgaste: 100, progreso: Math.random() * 0.02, esJugador: (i===0), color: '#FF5733', vel: 0.0014 });
+    }
+
+    // Dibujar Albert Park
+    document.getElementById('pista').setAttribute('d', "M 40,120 L 40,80 C 40,50 60,30 80,30 L 120,30 C 140,30 150,40 150,60 L 150,80 C 150,100 130,110 110,110 L 80,110 C 60,110 50,130 50,150 L 50,170 L 160,170 L 160,140 C 160,120 180,110 180,90 L 180,60 C 180,40 160,30 140,30 L 110,30 L 110,50 L 130,50 L 130,70 L 100,70 L 100,50 L 80,50 L 80,80 L 110,80 L 110,100 L 70,100 L 70,120 Z");
     document.getElementById('contenedor-autos').innerHTML = autos.map(a => `<circle id="${a.id}" r="4" fill="${a.color}" />`).join('');
 
-    // 2. FUNCIÓN DE VOZ Y LARGADA
-    function anunciar(texto) {
-        if ('speechSynthesis' in window) {
-            const msg = new SpeechSynthesisUtterance(texto);
-            msg.lang = 'es-ES';
-            window.speechSynthesis.speak(msg);
-        }
-    }
+    function anunciar(texto) { if ('speechSynthesis' in window) { const msg = new SpeechSynthesisUtterance(texto); msg.lang = 'es-ES'; window.speechSynthesis.speak(msg); } }
 
     window.iniciarLargada = () => {
         anunciar("Cinco luces rojas se encienden");
@@ -52,28 +28,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     document.getElementById('pantalla-largada').style.display = 'none';
                     carreraPausada = false;
-                    requestAnimationFrame(simular);
+                    simular();
                 }, 500);
             }
         }, 1000);
     };
 
-    // 3. MOTOR DE SIMULACIÓN
     function simular() {
         if (carreraPausada) return;
-        if (Math.random() < 0.0005) clima = 'lluvia';
-
         autos.forEach(a => {
-            let mult = (clima === 'lluvia' && a.tipoGoma !== 'lluvia') ? 0.4 : 1;
-            a.progreso += (a.vel * (a.desgaste/100) * mult);
+            a.progreso += a.vel * (a.desgaste/100);
             if (a.progreso > 1) a.progreso = 0;
-            a.desgaste = Math.max(0, a.desgaste - 0.02);
-            
             const p = document.getElementById('pista').getPointAtLength(a.progreso * 500);
             const el = document.getElementById(a.id);
             if(el) { el.setAttribute('cx', p.x); el.setAttribute('cy', p.y); }
         });
-
         renderizarTabla();
         requestAnimationFrame(simular);
     }
@@ -81,25 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderizarTabla() {
         const list = document.getElementById('lista-timing');
         let orden = [...autos].sort((a,b) => b.progreso - a.progreso);
-        list.innerHTML = orden.map((a,i) => `
-            <div style="${a.esJugador?'background:#444; border-left:3px solid #e10600;':''} padding:8px; border-bottom:1px solid #333;">
-                ${i+1}º ${a.piloto} | ${a.tipoGoma.toUpperCase()} | ${Math.floor(a.desgaste)}%
-            </div>
-        `).join('');
+        list.innerHTML = orden.map((a,i) => `<div style="${a.esJugador?'background:#444;':''} padding:8px; border-bottom:1px solid #333;">${i+1}º ${a.piloto} | ${Math.floor(a.desgaste)}%</div>`).join('');
     }
 
-    // 4. CONTROLES Y EVENTOS
-    window.cambiarRitmo = (r) => { autos[0].vel = r === 'ataque' ? 0.0025 : (r === 'cuidar' ? 0.001 : 0.0016); };
+    window.cambiarRitmo = (r) => { autos[0].vel = r === 'ataque' ? 0.0025 : 0.0014; };
     window.abrirModalBoxes = () => { document.getElementById('modal-boxes').style.display = 'block'; };
-    window.cambiarGomas = (t) => { 
-        anunciar("Cambiando a neumáticos " + t);
-        autos[0].tipoGoma = t; 
-        autos[0].desgaste = 100; 
-        document.getElementById('modal-boxes').style.display = 'none'; 
-    };
+    window.cambiarGomas = (t) => { anunciar("Cambiando a " + t); document.getElementById('modal-boxes').style.display = 'none'; };
 
-    // Disparo automático si viene de Gestión
-    if (urlParams.get('iniciar') === 'true') {
-        setTimeout(iniciarLargada, 1000);
-    }
+    // Disparo automático
+    if (urlParams.get('iniciar') === 'true') setTimeout(iniciarLargada, 1000);
 });
