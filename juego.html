@@ -6,15 +6,17 @@
     <title>F1 Pit Wall Manager</title>
     <style>
         :root { --bg: #0b0f19; --panel: #1e293b; --accent: #e10600; --text: #f8fafc; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; height: 100vh; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
-        #pantalla-largada { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        /* Pantalla de largada centrada y escalada */
+        #pantalla-largada { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; justify-content: center; align-items: center; }
         .luz { width: 50px; height: 50px; background: #222; border-radius: 50%; margin: 0 5px; border: 2px solid #333; }
         
-        #pantalla-carrera { display: flex; flex-direction: column; height: 100vh; }
-        .tercio { height: 33.33vh; border-bottom: 2px solid #334155; position: relative; }
-        #seccion-circuito { background: #0a0a0a; }
+        /* Layout de tercios forzado */
+        .tercio { flex: 1; border-bottom: 2px solid #334155; position: relative; display: flex; flex-direction: column; overflow: hidden; }
+        #seccion-circuito { background: #0a0a0a; display: flex; align-items: center; justify-content: center; }
         #lista-timing { overflow-y: auto; background: var(--panel); padding: 10px; font-size: 0.9rem; }
+        
         .btn-control { background: #334155; color: white; border: none; padding: 15px; margin: 2px; border-radius: 5px; flex: 1; font-weight: bold; }
         #modal-boxes { position: fixed; top: 20%; left: 10%; width: 80%; background: var(--panel); padding: 20px; border-left: 5px solid var(--accent); display: none; z-index: 1000; }
     </style>
@@ -22,10 +24,10 @@
 <body>
     <div id="pantalla-largada"><div style="display:flex;"><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div></div></div>
 
-    <div id="pantalla-carrera">
-        <div class="tercio" id="seccion-circuito"><svg viewBox="0 0 200 200" style="width:100%; height:100%;"><path id="pista" d="" fill="none" stroke="#444" stroke-width="3"/><g id="contenedor-autos"></g></svg></div>
+    <div id="pantalla-carrera" style="display:flex; flex-direction:column; height:100vh; width:100vw;">
+        <div class="tercio" id="seccion-circuito"><svg viewBox="0 0 200 200" style="width:100%; height:100%;"><path id="pista" d="" fill="none" stroke="#e10600" stroke-width="3"/><g id="contenedor-autos"></g></svg></div>
         <div class="tercio" id="lista-timing"></div>
-        <div class="tercio" style="display:flex; padding:5px;"><button class="btn-control" onclick="cambiarRitmo('cuidar')">CUIDAR</button><button class="btn-control" onclick="cambiarRitmo('normal')">NORMAL</button><button class="btn-control" onclick="cambiarRitmo('ataque')">ATACAR</button><button class="btn-control" style="background:var(--accent)" onclick="abrirModalBoxes()">BOXES</button></div>
+        <div class="tercio" style="flex-direction:row; padding:5px;"><button class="btn-control" onclick="cambiarRitmo('cuidar')">CUIDAR</button><button class="btn-control" onclick="cambiarRitmo('normal')">NORMAL</button><button class="btn-control" onclick="cambiarRitmo('ataque')">ATACAR</button><button class="btn-control" style="background:var(--accent)" onclick="abrirModalBoxes()">BOXES</button></div>
     </div>
 
     <div id="modal-boxes">
