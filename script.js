@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let frameCount = 0;
     let autos = [];
 
-    // Inicializar pilotos
+    // 1. Inicialización de pilotos
     for (let i = 0; i < 22; i++) {
         autos.push({ 
             id: `p${i}`, 
@@ -21,11 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.getElementById('pista').setAttribute('d', "M 40,80 L 70,30 L 130,30 L 160,80 L 130,130 L 90,100 L 60,100 L 40,140 L 80,170 L 170,170 L 180,120 L 150,120 Z");
+    // 2. Circuito (Diseño de líneas rectas verdes)
+    document.getElementById('pista').setAttribute('d', 
+        "M 40,110 L 60,60 L 110,70 L 140,50 L 180,90 L 170,140 L 150,130 L 150,170 L 60,170 L 40,140 L 50,120 Z"
+    );
+    
     document.getElementById('contenedor-autos').innerHTML = autos.map(a => `<circle id="${a.id}" r="4" fill="${a.color}" />`).join('');
 
     function anunciar(texto) { if ('speechSynthesis' in window) { const msg = new SpeechSynthesisUtterance(texto); msg.lang = 'es-ES'; window.speechSynthesis.speak(msg); } }
 
+    // 3. Sistema de Largada
     window.iniciarLargada = () => {
         anunciar("Cinco luces rojas se encienden");
         let luces = document.querySelectorAll('.luz');
@@ -44,12 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     };
 
+    // 4. Motor de simulación y Desgaste
     function simular() {
         if (carreraPausada) return;
         frameCount++;
 
         autos.forEach(a => {
-            // Desgaste lógico: 1% cada 2s(ataque), 5s(normal), 7s(cuidar)
             let divisor = a.ritmo === 'ataque' ? 2 : (a.ritmo === 'cuidar' ? 7 : 5);
             if (frameCount % (divisor * 60) === 0) {
                 a.desgaste = Math.max(0, a.desgaste - 1);
@@ -67,21 +72,32 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(simular);
     }
 
+    // 5. Tabla dividida (Telemetría y Estado)
     function renderizarTabla() {
         const list = document.getElementById('lista-timing');
         let orden = [...autos].sort((a,b) => b.progreso - a.progreso);
-        list.innerHTML = orden.map((a,i) => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; border-bottom:1px solid #333; font-size: 13px; ${a.esJugador ? 'background:#2d3748;' : ''}">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:10px; height:10px; border-radius:50%; background:${a.color}"></div>
-                    <span style="font-weight:bold;">${a.piloto}</span>
+        
+        list.innerHTML = orden.map((a,i) => {
+            let tiempoVuelta = a.ritmo === 'ataque' ? "1:22.4" : (a.ritmo === 'cuidar' ? "1:25.8" : "1:23.9");
+            return `
+                <div style="display:flex; padding:8px; border-bottom:1px solid #333; font-size: 11px; ${a.esJugador ? 'background:#2d3748;' : ''}">
+                    <div style="flex:1; border-right:1px solid #444; padding-right:5px;">
+                        <div style="font-weight:bold; color:#00ff00;">${tiempoVuelta}</div>
+                        <div style="color:#718096; text-transform:uppercase;">${a.ritmo}</div>
+                    </div>
+                    <div style="flex:1; padding-left:10px; display:flex; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <div style="width:8px; height:8px; border:2px solid ${a.color}; border-radius:50%;"></div>
+                            <span style="font-weight:bold;">${a.piloto.substring(0,8)}</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <div>🛞 ${a.tipoGoma.substring(0,3).toUpperCase()}</div>
+                            <div style="color:${a.desgaste < 20 ? '#e10600' : '#a0aec0'};">${Math.floor(a.desgaste)}%</div>
+                        </div>
+                    </div>
                 </div>
-                <div style="color:#a0aec0; gap:10px; display:flex;">
-                    <span>${a.tipoGoma.toUpperCase()}</span>
-                    <span style="min-width:35px; text-align:right;">${Math.floor(a.desgaste)}%</span>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     window.cambiarRitmo = (r) => { 
