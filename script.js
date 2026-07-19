@@ -1,64 +1,92 @@
-const calendario = [{ 
-    nombre: "GP de Australia", 
-    d: "M 120,130 L 120,110 C 120,80 150,70 170,80 L 180,100 L 160,110 L 160,130 L 120,130 M 120,130 C 100,130 80,130 70,120 C 50,100 40,80 50,60 C 60,40 80,30 100,30 C 130,30 150,50 150,70 L 140,70 C 140,55 120,45 100,45 C 80,45 70,60 70,80 C 70,100 90,115 110,115 L 120,115" 
-}];
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. CAPTURA DE PARÁMETROS DE GESTIÓN
+    const urlParams = new URLSearchParams(window.location.search);
+    const directorFormateado = (urlParams.get('director') || 'CARLOS').toUpperCase().substring(0, 12);
+    const escuderiaElegida = urlParams.get('escuderia') || 'Alpha Racing';
+    const respuestasCorrectas = parseInt(urlParams.get('correctas') || '0', 10);
+    const tiempoTrivia = parseFloat(urlParams.get('tiempo') || '0');
 
-// Definimos los autos: jugador + rivales
-let autos = [
-    { id: 'jugador', piloto: 'Tú', tipoGoma: 'blando', desgaste: 100, progreso: 0, color: '#fff' },
-    { id: 'rival-1', piloto: 'Russell', tipoGoma: 'blando', desgaste: 95, progreso: 0, color: '#00D2BE' },
-    { id: 'rival-2', piloto: 'Leclerc', tipoGoma: 'medio', desgaste: 100, progreso: 0, color: '#DC0000' }
-];
-
-let lastTimestamp = 0;
-const TIEMPO_VUELTA_IDEAL = 60; 
-
-function simularCarrera(timestamp) {
-    if (!lastTimestamp) lastTimestamp = timestamp;
-    const deltaTime = (timestamp - lastTimestamp) / 1000;
-    lastTimestamp = timestamp;
-
+    // Referencias DOM
     const pista = document.getElementById('pista');
-    const longitud = pista.getTotalLength();
+    const contenedorAutos = document.getElementById('contenedor-autos');
+    const listaTiming = document.getElementById('lista-timing');
 
-    autos.forEach(auto => {
-        // Lógica de desgaste independiente
-        const desgasteTasa = { blando: 0.8, medio: 0.4, duro: 0.2 };
-        auto.desgaste -= desgasteTasa[auto.tipoGoma] * deltaTime;
-        
-        // Si el desgaste es muy bajo, fuerzan parada (IA simple)
-        if (auto.desgaste < 10 && auto.id !== 'jugador') auto.desgaste = 100;
+    const poolEquipos = [
+        { nombre: "Alpha Racing", color: "#FF5733", piloto: "J. Doe" },
+        { nombre: "Beta Motors", color: "#33FF57", piloto: "A. Smith" },
+        { nombre: "Gamma Team", color: "#3357FF", piloto: "P. Müller" },
+        { nombre: "Delta Sport", color: "#F3FF33", piloto: "Y. Sato" },
+        { nombre: "Omega Motorsport", color: "#FFFFFF", piloto: "S. Vettel" }
+    ];
 
-        // Cálculo de velocidad según compuesto y desgaste
-        let velocidadReal = (1 / TIEMPO_VUELTA_IDEAL) * deltaTime * (auto.desgaste / 100);
-        auto.progreso += velocidadReal;
-        if (auto.progreso > 1) auto.progreso = 0;
+    let competidores = [];
+    let miEquipo = poolEquipos.find(e => e.nombre === escuderiaElegida) || poolEquipos[0];
+    let score = (respuestasCorrectas * 1000) - (tiempoTrivia * 10);
 
-        // Renderizado
-        const punto = pista.getPointAtLength(auto.progreso * longitud);
-        const el = document.getElementById(auto.id);
-        if (el) { el.setAttribute('cx', punto.x); el.setAttribute('cy', punto.y); }
+    // 2. CONFIGURACIÓN INICIAL
+    competidores = poolEquipos.map((eq, id) => {
+        const esJugador = eq.nombre === miEquipo.nombre;
+        return {
+            id: `auto-${id}`,
+            nombreDisplay: esJugador ? directorFormateado : eq.piloto.toUpperCase(),
+            equipo: eq.nombre,
+            color: eq.color,
+            esJugador: esJugador,
+            progreso: esJugador ? Math.max(0, score / 4000) * 0.06 : Math.random() * 0.03,
+            velocidadBase: esJugador ? 0.0016 : 0.0012 + (Math.random() * 0.0006),
+            desgasteGoma: 100,
+            vueltaActual: 1
+        };
     });
 
-    actualizarInterfaz();
-    requestAnimationFrame(simularCarrera);
-}
+    // Inyectar círculos en SVG
+    contenedorAutos.innerHTML = competidores.map(c => 
+        `<circle id="${c.id}" r="${c.esJugador ? "7" : "5"}" fill="${c.color}" stroke="#111" />`).join('');
 
-function actualizarInterfaz() {
-    const jugador = autos[0];
-    const info = document.getElementById('estado-neumatico');
-    info.innerText = `Gomas: ${jugador.tipoGoma.toUpperCase()} | Desgaste: ${Math.floor(jugador.desgaste)}%`;
-}
+    // 3. BUCLE DE CARRERA
+    function simularCarrera() {
+        competidores.forEach(comp => {
+            let factorGoma = comp.desgasteGoma / 100;
+            let velocidadActual = comp.velocidadBase * (0.6 + factorGoma * 0.4);
 
-function cambiarGomas(tipo) {
-    autos[0].tipoGoma = tipo;
-    autos[0].desgaste = 100;
-    document.getElementById('modal-boxes').style.display = 'none';
-}
+            comp.progreso += velocidadActual;
+            if (comp.progreso > 1) { comp.progreso = 0; comp.vueltaActual++; }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('pista').setAttribute('d', calendario[0].d);
-    document.getElementById('contenedor-autos').innerHTML = autos.map(a => 
-        `<circle id="${a.id}" r="4" fill="${a.color}" />`).join('');
-    requestAnimationFrame(simularCarrera);
+            // Desgaste
+            if (comp.desgasteGoma > 0) comp.desgasteGoma -= (velocidadActual * 8);
+            else if (!comp.esJugador) comp.desgasteGoma = 100; // IA auto-stop
+
+            const punto = pista.getPointAtLength(comp.progreso * pista.getTotalLength());
+            const el = document.getElementById(comp.id);
+            if (el) { el.setAttribute('cx', punto.x); el.setAttribute('cy', punto.y); }
+        });
+
+        renderizarTabla();
+        requestAnimationFrame(simularCarrera);
+    }
+
+    function renderizarTabla() {
+        let ordenados = [...competidores].sort((a, b) => b.progreso - a.progreso);
+        listaTiming.innerHTML = ordenados.map((c, i) => `
+            <div class="fila-piloto" style="border-left: 5px solid ${c.color}; padding: 5px; background: #222; margin: 2px;">
+                ${i + 1}º ${c.nombreDisplay} 🛞 ${Math.floor(c.desgasteGoma)}%
+            </div>
+        `).join('');
+    }
+
+    // 4. CONTROLES EXTERNOS (Asignados al tercio inferior)
+    window.cambiarRitmo = (ritmo) => {
+        const jugador = competidores.find(c => c.esJugador);
+        if (ritmo === 'conservar') jugador.velocidadBase = 0.0009;
+        if (ritmo === 'normal') jugador.velocidadBase = 0.0016;
+        if (ritmo === 'ataque') jugador.velocidadBase = 0.0030;
+    };
+
+    window.entrarABoxes = () => {
+        const jugador = competidores.find(c => c.esJugador);
+        jugador.desgasteGoma = 100;
+        alert("Estrategia ejecutada: Parada en boxes realizada.");
+    };
+
+    simularCarrera();
 });
