@@ -3,114 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>F1 Pit Wall Manager - Oficina de Gestión</title>
+    <title>Oficina de Gestión | F1 Pit Wall</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #0b0f19;
-            font-family: Arial, sans-serif;
-            color: #f8fafc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            width: 100vw;
-            box-sizing: border-box;
-            padding: 15px;
-        }
-
-        .pantalla-gestion {
-            background-color: #1e293b;
-            border: 2px solid #475569;
-            border-top: 5px solid #e10600;
-            border-radius: 8px;
-            padding: 20px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            box-sizing: border-box;
-        }
-
-        .header-oficina {
-            text-align: center;
-            border-bottom: 1px solid #475569;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        .header-oficina h2 { margin: 0; font-size: 18px; letter-spacing: 1px; }
-        .cargo-director { font-size: 12px; color: #e10600; font-weight: bold; margin-top: 3px; text-transform: uppercase; }
-
-        .seccion-info {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 15px;
-        }
-
-        .seccion-info h3 { margin-top: 0; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #1e293b; padding-bottom: 4px; }
-
-        .fila-datos {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-        .fila-datos:last-child { margin-bottom: 0; }
-
-        .valor-resaltado { font-weight: bold; color: #f8fafc; }
-        .puntos-badge { background-color: #e10600; color: white; padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 12px; }
-
-        .btn-lanzar {
-            width: 100%;
-            background: linear-gradient(135deg, #e10600 0%, #b90500 100%);
-            color: white;
-            border: none;
-            padding: 16px;
-            font-weight: bold;
-            font-size: 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(225, 6, 0, 0.4);
-            margin-top: 10px;
-        }
-        .btn-lanzar:active { transform: scale(0.98); }
+        :root { --bg: #0b0f19; --panel: #1e293b; --accent: #e10600; --text: #f8fafc; }
+        body { margin: 0; background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .pantalla-gestion { background-color: var(--panel); border: 1px solid #334155; border-top: 5px solid var(--accent); border-radius: 8px; padding: 20px; width: 90%; max-width: 360px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .header-oficina { text-align: center; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 15px; }
+        .cargo-director { font-size: 11px; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-top: 5px; }
+        
+        .seccion-info { background-color: #0f172a; border-radius: 6px; padding: 12px; margin-bottom: 15px; border: 1px solid #334155; }
+        .fila-datos { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+        .valor-resaltado { font-weight: bold; color: white; }
+        
+        .btn-lanzar { width: 100%; background: var(--accent); color: white; border: none; padding: 18px; font-weight: bold; font-size: 16px; border-radius: 6px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 15px rgba(225, 6, 0, 0.3); }
     </style>
 </head>
 <body>
 
     <div class="pantalla-gestion">
         <div class="header-oficina">
-            <h2>📋 OFICINA DE ESTRATEGIA</h2>
+            <h2>OFICINA DE ESTRATEGIA</h2>
             <div class="cargo-director">Director: <span id="nombre-director">---</span></div>
         </div>
 
         <div class="seccion-info">
-            <h3>🏎️ DETALLES DE ESCUDERÍA</h3>
-            <div class="fila-datos">
-                <span>Equipo Asignado:</span>
-                <span class="valor-resaltado" id="txt-equipo">Buscando...</span>
-            </div>
-            <div class="fila-datos">
-                <span>Piloto Principal:</span>
-                <span class="valor-resaltado" id="txt-piloto">Cargando...</span>
-            </div>
-        </div>
-
-        <div class="seccion-info">
-            <h3>🔧 RECURSOS DE DESARROLLO</h3>
-            <div class="fila-datos">
-                <span>Rendimiento Trivia:</span>
-                <span class="valor-resaltado" id="txt-rendimiento">0/3 aciertos</span>
-            </div>
-            <div class="fila-datos">
-                <span>Puntos de Mejora:</span>
-                <span class="puntos-badge" id="txt-puntos">0 PTS</span>
-            </div>
+            <div class="fila-datos"><span>Equipo:</span><span class="valor-resaltado" id="txt-equipo">---</span></div>
+            <div class="fila-datos"><span>Piloto:</span><span class="valor-resaltado" id="txt-piloto">---</span></div>
         </div>
 
         <button class="btn-lanzar" onclick="irALaCarrera()">IR AL MURO DE BOXES 🏎️</button>
@@ -118,36 +37,21 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const director = urlParams.get('director') || 'Carlos';
-        const correctas = parseInt(urlParams.get('correctas') || '0', 10);
-        const tiempo = parseFloat(urlParams.get('tiempo') || '0');
+        const director = urlParams.get('director') || 'CARLOS';
+        const correctas = urlParams.get('correctas') || '0';
+        const tiempo = urlParams.get('tiempo') || '0';
 
-        const poolEquipos = [
-            { nombre: "Alpha Racing", piloto: "J. Doe" },
-            { nombre: "Beta Motors", piloto: "A. Smith" },
-            { nombre: "Gamma Team", piloto: "P. Müller" },
-            { nombre: "Delta Sport", piloto: "Y. Sato" },
-            { nombre: "Epsilon F1", piloto: "M. Bianchi" },
-            { nombre: "Zeta Scuderia", piloto: "L. Rossi" },
-            { nombre: "Eta Engineering", piloto: "E. Jones" },
-            { nombre: "Theta Racing", piloto: "K. Alwan" },
-            { nombre: "Iota Performance", piloto: "N. Nielsen" },
-            { nombre: "Kappa GP", piloto: "C. Dupont" },
-            { nombre: "Omega Motorsport", piloto: "S. Vettel" }
-        ];
-
-        const escuderiaAsignada = poolEquipos[Math.floor(Math.random() * poolEquipos.length)];
-        const puntosGanados = correctas * 100;
+        // Selección aleatoria
+        const pool = [{nombre: "Alpha Racing", p: "J. Doe"}, {nombre: "Omega Motorsport", p: "S. Vettel"}]; // Simplificado para el ejemplo
+        const escuderia = pool[Math.floor(Math.random() * pool.length)];
 
         document.getElementById('nombre-director').innerText = director;
-        document.getElementById('txt-equipo').innerText = escuderiaAsignada.nombre;
-        document.getElementById('txt-piloto').innerText = escuderiaAsignada.piloto;
-        document.getElementById('txt-rendimiento').innerText = `${correctas} / 3 en ${tiempo}s`;
-        document.getElementById('txt-puntos').innerText = `+${puntosGanados} PTS`;
+        document.getElementById('txt-equipo').innerText = escuderia.nombre;
+        document.getElementById('txt-piloto').innerText = escuderia.p;
 
         function irALaCarrera() {
-            // CORREGIDO: Ahora redirige a 'juego.html' en vez de 'index.html'
-            window.location.href = `juego.html?director=${encodeURIComponent(director)}&escuderia=${encodeURIComponent(escuderiaAsignada.nombre)}&correctas=${correctas}&tiempo=${tiempo}`;
+            // AQUÍ ESTÁ EL CAMBIO: Se agrega '&iniciar=true' para que el juego arranque solo
+            window.location.href = `juego.html?iniciar=true&director=${encodeURIComponent(director)}&escuderia=${encodeURIComponent(escuderia.nombre)}&correctas=${correctas}&tiempo=${tiempo}`;
         }
     </script>
 </body>
