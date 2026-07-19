@@ -2,35 +2,38 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>F1 Pit Wall Manager</title>
     <style>
         body { margin: 0; background: #111; color: #fff; font-family: sans-serif; }
         .pantalla-celular { display: flex; flex-direction: column; height: 100vh; }
         .seccion-circuito { flex: 2; position: relative; background: #222; }
-        .info-vuelta { padding: 10px; background: #333; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
-        .mapa-svg { width: 100%; height: 100%; }
-        .seccion-timing { flex: 2; overflow-y: auto; padding: 10px; background: #000; }
-        .seccion-controles { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .btn { padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .info-vuelta { padding: 10px; background: #333; display: flex; justify-content: space-between; align-items: center; }
+        #modal-boxes { display:none; position:fixed; top:20%; left:10%; width:80%; background:#222; border: 2px solid #555; padding:20px; border-radius:10px; z-index:1000; text-align:center; }
+        .btn { padding: 10px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="pantalla-celular">
         <div class="seccion-circuito">
             <div class="info-vuelta" id="header-carrera"></div>
+            <div id="telemetria" style="padding:5px; font-size:0.8rem;">
+                Estado: <span id="estado-neumatico">Gomas: Blando | Desgaste: 100%</span>
+            </div>
             <svg viewBox="0 0 200 200" class="mapa-svg">
                 <path id="pista" d="" fill="none" stroke="#666" stroke-width="2"/>
                 <g id="contenedor-autos"></g>
             </svg>
         </div>
-        <div class="seccion-timing" id="lista-timing"></div>
-        <div class="seccion-controles">
-            <button class="btn" onclick="cambiarRitmo('conservar')">🔋 Ahorro</button>
-            <button class="btn" onclick="cambiarRitmo('normal')">⏱️ Normal</button>
-            <button class="btn" onclick="cambiarRitmo('ataque')">🚀 Ataque</button>
-        </div>
+        <button onclick="abrirBoxes()">GESTIONAR BOXES</button>
     </div>
+
+    <div id="modal-boxes">
+        <h3>SELECCIÓN DE NEUMÁTICOS</h3>
+        <button class="btn" style="background:#ff4444" onclick="cambiarGomas('blando')">BLANDO</button>
+        <button class="btn" style="background:#ffcc00" onclick="cambiarGomas('medio')">MEDIO</button>
+        <button class="btn" style="background:#ffffff" onclick="cambiarGomas('duro')">DURO</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
