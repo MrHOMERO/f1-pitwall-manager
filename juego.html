@@ -3,57 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>F1 Pit Wall Manager</title>
+    <title>F1 Albert Park Manager</title>
     <style>
         :root { --bg: #0b0f19; --panel: #1e293b; --accent: #e10600; --text: #f8fafc; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        
-        /* Pantalla de largada */
-        #pantalla-largada { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .luz { width: 50px; height: 50px; background: #222; border-radius: 50%; margin: 0 5px; border: 2px solid #333; }
-        
-        /* Layout principal */
-        #pantalla-carrera { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
-        
-        /* Tercios con distribución equitativa */
-        .tercio { flex: 1; border-bottom: 2px solid #334155; position: relative; display: flex; flex-direction: column; overflow: hidden; }
-        
-        #seccion-circuito { background: #0a0a0a; display: flex; align-items: center; justify-content: center; }
-        
-        /* Tabla con fuente mono para estabilidad de columnas */
-        #lista-timing { overflow-y: auto; background: var(--panel); padding: 5px; font-family: 'Courier New', Courier, monospace; }
-        
-        .btn-control { background: #334155; color: white; border: none; padding: 15px; margin: 2px; border-radius: 5px; flex: 1; font-weight: bold; }
-        
-        /* Modal de Boxes */
-        #modal-boxes { position: fixed; top: 20%; left: 10%; width: 80%; background: var(--panel); padding: 20px; border-left: 5px solid var(--accent); display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        #seccion-circuito { flex: 1; background: #0a0a0a; display: flex; align-items: center; justify-content: center; position: relative; }
+        #lista-timing { flex: 1; overflow-y: auto; background: var(--panel); font-family: 'Courier New', monospace; }
+        .btn-control { background: #334155; color: white; border: none; padding: 15px; flex: 1; font-weight: bold; }
+        #modal-boxes { position: fixed; top: 20%; left: 10%; width: 80%; background: var(--panel); padding: 20px; display: none; z-index: 1000; }
     </style>
 </head>
 <body>
-    <div id="pantalla-largada"><div style="display:flex;"><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div><div class="luz"></div></div></div>
-
-    <div id="pantalla-carrera">
+    <div id="pantalla-carrera" style="display:flex; flex-direction:column; height:100vh;">
         <div class="tercio" id="seccion-circuito">
             <svg viewBox="0 0 200 200" style="width:100%; height:100%;">
                 <path id="pista" d="" fill="none" stroke="#e10600" stroke-width="3"/>
+                <!-- Línea de meta -->
+                <rect x="38" y="105" width="12" height="6" fill="white"/>
+                <rect x="44" y="105" width="6" height="6" fill="black"/>
                 <g id="contenedor-autos"></g>
             </svg>
         </div>
         <div class="tercio" id="lista-timing"></div>
-        <div class="tercio" style="flex-direction:row; padding:5px;">
-            <button class="btn-control" onclick="cambiarRitmo('cuidar')">CUIDAR</button>
-            <button class="btn-control" onclick="cambiarRitmo('normal')">NORMAL</button>
-            <button class="btn-control" onclick="cambiarRitmo('ataque')">ATACAR</button>
+        <div class="tercio" style="flex-direction:row; padding:5px; display:flex;">
+            <button class="btn-control" onclick="cambiarRitmo('CUIDAR')">CUIDAR</button>
+            <button class="btn-control" onclick="cambiarRitmo('NORMAL')">NORMAL</button>
+            <button class="btn-control" onclick="cambiarRitmo('ATAQUE')">ATAQUE</button>
             <button class="btn-control" style="background:var(--accent)" onclick="abrirModalBoxes()">BOXES</button>
         </div>
     </div>
-
     <div id="modal-boxes">
-        <h3 style="margin-top:0;">SELECCIONAR GOMAS</h3>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button onclick="cambiarGomas('blando')">BLANDO</button><button onclick="cambiarGomas('medio')">MEDIO</button>
-            <button onclick="cambiarGomas('duro')">DURO</button><button onclick="cambiarGomas('lluvia')">LLUVIA</button>
-        </div>
+        <h3>NEUMÁTICOS</h3>
+        <button onclick="cambiarGomas('BLA')">BLANDO</button><button onclick="cambiarGomas('MED')">MEDIO</button>
+        <button onclick="cambiarGomas('DUR')">DURO</button>
     </div>
     <script src="script.js"></script>
 </body>
