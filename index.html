@@ -14,7 +14,6 @@
         .btn-pit { background: #e5a900; color: #000; }
         .hidden { display: none !important; }
         
-        /* Botón de Audio Mute */
         #audio-control {
             position: fixed; top: 10px; right: 10px; z-index: 1000;
             background: rgba(21, 25, 34, 0.8); border: 1px solid #323b4e;
@@ -88,8 +87,7 @@
 </head>
 <body>
 
-    <!-- REPRODUCTOR DE AUDIO CON LINK DIRECTO DE GITHUB -->
-    <audio id="bg-music" loop>
+    <audio id="bg-music" loop preload="auto">
         <source src="https://raw.githubusercontent.com/MrHOMERO/f1-pitwall-manager/9a5a9252af3c7c4315ae76ef2f761cf71133c6c5/musica.mp3" type="audio/mpeg">
     </audio>
     <button id="audio-control" class="hidden" onclick="toggleMute()">🔊</button>
@@ -182,9 +180,8 @@
             <tbody id="results-body"></tbody>
         </table>
         <button class="btn" onclick="volverAlMuro()">Siguiente Gran Premio</button>
-    </div>
-
-    <script>
+    </div><script>
+        
         const PARRILLA = {
             "McLaren": { color: "#ff8000", pilotos: [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}] },
             "Ferrari": { color: "#e8002d", pilotos: [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}] },
@@ -226,23 +223,17 @@
         let rivales = [];
 
         function iniciarConfiguracion() {
-            // REPRODUCIR MÚSICA (de forma segura para evitar bloquear la interfaz)
             const music = document.getElementById("bg-music");
             if (music) {
                 music.volume = 0.3;
                 let playPromise = music.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(e => {
-                        console.log("Audio no disponible o bloqueado por el navegador:", e);
-                    });
+                    playPromise.catch(e => console.log("Audio no bloqueante:", e));
                 }
             }
-            
-            // MOSTRAR BOTÓN MUTE
             const audioControl = document.getElementById("audio-control");
             if (audioControl) audioControl.classList.remove("hidden");
 
-            // AVANZAR A LA SIGUIENTE PANTALLA
             document.getElementById("intro-screen").classList.add("hidden");
             document.getElementById("setup-screen").classList.remove("hidden");
             init();
@@ -381,76 +372,6 @@
             rivales = [];
 
             let baseVelocidadGlobal = 1.6;
-
-            for(let team in PARRILLA) {
-                PARRILLA[team].pilotos.forEach(piloto => {
-                    if(piloto.n !== miPiloto) {
-                        let div = document.createElement("div");
-                        div.className = "car-dot";
-                        div.style.background = PARRILLA[team].color;
-                        div.style.opacity = "0.85";
-                        rivalsContainer.appendChild(div);
-                        
-                        let compRival = compuestosPosibles[Math.floor(Math.random() * 3)];
-                        let initDist = Math.random() * (pathLength * 0.15);
-                        
-                        let variacionRival = (Math.random() * 0.2) - 0.1;
-                        rivales.push({ 
-                            nombre: piloto.n,
-                            escuderia: team,
-                            el: div, 
-                            dist: initDist,
-                            totalDist: initDist,
-                            baseSpeed: baseVelocidadGlobal + variacionRival,
-                            desgaste: 100,
-                            compuesto: compRival,
-                            degFactor: compRival === "Blando" ? 0.8 : (compRival === "Medio" ? 0.5 : 0.25)
-                        });
-                    }
-                });
-            }
-
-            let userTotalDist = 0;
-
-            carreraInterval = setInterval(() => {
-                if(enBox) {
-                    desgaste = Math.min(100, desgaste + 35);
-                    document.getElementById("pit-status").innerText = "🔧 En Pit Stop...";
-                    if(desgaste >= 100) {
-                        enBox = false;
-                        compuestoActual = compuestoSiguiente;
-                        document.getElementById("live-compound").innerText = compuestoActual;
-                    }
-                    return;
-                }
-
-                document.getElementById("pit-status").innerText = "Pista";
-                
-                let multVel = 1.0, degBaseVuelta = 20;
-                if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
-                if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
-                if(compuestoActual === "Duro") { multVel = 0.88; degBaseVuelta = 6; }
-
-                let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
-                let desgasteFactor = Math.max(0.4, desgaste / 100);
-                
-                let userSpeed = (1.45 + (rendTotal * 0.04)) * multVel * desgasteFactor;
-
-                let deltaVuelta = userSpeed / pathLength;
-                userTotalDist += userSpeed;
-                let userDist = userTotalDist % pathLength;
-                vuelta += deltaVuelta;
-
-                let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.05);
-                desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.5, factorMejoraNeumatico);
-
-                let point = path.getPointAtLength(userDist);
-                userDot.style.left = `${(point.x / 200) * 240}px`;
-                userDot.style.top = `${(point.y / 150) * 180}px`;
-
-                rivales.forEach(r => {
-                    r.desgaste = Math.max(20, r.desgaste - (0.05 * r.degFactor));
-let baseVelocidadGlobal = 1.6;
             let solicitadoPit = false;
             let tiempoEnPit = 0;
 
@@ -485,9 +406,8 @@ let baseVelocidadGlobal = 1.6;
             let userTotalDist = 0;
 
             carreraInterval = setInterval(() => {
-                // LOGICA DE PIT STOP (Detención de 5 segundos)
                 if(enBox) {
-                    tiempoEnPit += 60; // Incremento según el tick del interval (60ms)
+                    tiempoEnPit += 60;
                     let segundosRestantes = Math.max(0, ((5000 - tiempoEnPit) / 1000).toFixed(1));
                     document.getElementById("pit-status").innerText = `🔧 Pit Stop: ${segundosRestantes}s`;
                     
@@ -500,7 +420,7 @@ let baseVelocidadGlobal = 1.6;
                         document.getElementById("pit-btn").innerText = "⚠️ ¡ENTRAR A BOXES!";
                         document.getElementById("pit-btn").style.background = "#e5a900";
                     }
-                    return; // El vehículo permanece detenido durante el Pit Stop
+                    return;
                 }
 
                 if(solicitadoPit) {
@@ -509,7 +429,6 @@ let baseVelocidadGlobal = 1.6;
                     document.getElementById("pit-status").innerText = "Pista";
                 }
 
-                // MULTIPLICADORES DE NEUMÁTICOS
                 let multVel = 1.0, degBaseVuelta = 20;
                 if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
                 if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
@@ -524,7 +443,6 @@ let baseVelocidadGlobal = 1.6;
                 userTotalDist += userSpeed;
                 let userDist = userTotalDist % pathLength;
                 
-                // DETECTAR CRUCE DE LÍNEA DE META PARA ENTRAR A BOXES
                 if(solicitadoPit && userDist < prevDist) {
                     enBox = true;
                     tiempoEnPit = 0;
@@ -606,7 +524,7 @@ let baseVelocidadGlobal = 1.6;
         }
 
         function ordenarPitStop() { 
-            if(!enBox && !solicitadoPit) { 
+            if(!enBox) { 
                 solicitadoPit = true; 
                 document.getElementById("pit-btn").innerText = "⏳ Pit Stop Confirmado";
                 document.getElementById("pit-btn").style.background = "#555";
