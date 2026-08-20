@@ -439,6 +439,99 @@
 
                 rivales.forEach(r => {
                     r.desgaste = Math.max(20, r.desgaste - (0.05 * r.degFactor));
+let baseVelocidadGlobal = 1.6;
+            let solicitadoPit = false;
+            let tiempoEnPit = 0;
+
+            for(let team in PARRILLA) {
+                PARRILLA[team].pilotos.forEach(piloto => {
+                    if(piloto.n !== miPiloto) {
+                        let div = document.createElement("div");
+                        div.className = "car-dot";
+                        div.style.background = PARRILLA[team].color;
+                        div.style.opacity = "0.85";
+                        rivalsContainer.appendChild(div);
+                        
+                        let compRival = compuestosPosibles[Math.floor(Math.random() * 3)];
+                        let initDist = Math.random() * (pathLength * 0.15);
+                        
+                        let variacionRival = (Math.random() * 0.2) - 0.1;
+                        rivales.push({ 
+                            nombre: piloto.n,
+                            escuderia: team,
+                            el: div, 
+                            dist: initDist,
+                            totalDist: initDist,
+                            baseSpeed: baseVelocidadGlobal + variacionRival,
+                            desgaste: 100,
+                            compuesto: compRival,
+                            degFactor: compRival === "Blando" ? 0.8 : (compRival === "Medio" ? 0.5 : 0.25)
+                        });
+                    }
+                });
+            }
+
+            let userTotalDist = 0;
+
+            carreraInterval = setInterval(() => {
+                // LOGICA DE PIT STOP (Detención de 5 segundos)
+                if(enBox) {
+                    tiempoEnPit += 60; // Incremento según el tick del interval (60ms)
+                    let segundosRestantes = Math.max(0, ((5000 - tiempoEnPit) / 1000).toFixed(1));
+                    document.getElementById("pit-status").innerText = `🔧 Pit Stop: ${segundosRestantes}s`;
+                    
+                    if(tiempoEnPit >= 5000) {
+                        enBox = false;
+                        solicitadoPit = false;
+                        desgaste = 100;
+                        compuestoActual = compuestoSiguiente;
+                        document.getElementById("live-compound").innerText = compuestoActual;
+                        document.getElementById("pit-btn").innerText = "⚠️ ¡ENTRAR A BOXES!";
+                        document.getElementById("pit-btn").style.background = "#e5a900";
+                    }
+                    return; // El vehículo permanece detenido durante el Pit Stop
+                }
+
+                if(solicitadoPit) {
+                    document.getElementById("pit-status").innerText = "⏱️ Entrada en esta vuelta";
+                } else {
+                    document.getElementById("pit-status").innerText = "Pista";
+                }
+
+                // MULTIPLICADORES DE NEUMÁTICOS
+                let multVel = 1.0, degBaseVuelta = 20;
+                if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
+                if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
+                if(compuestoActual === "Duro") { multVel = 0.88; degBaseVuelta = 6; }
+
+                let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
+                let desgasteFactor = Math.max(0.4, desgaste / 100);
+                
+                let userSpeed = (1.45 + (rendTotal * 0.04)) * multVel * desgasteFactor;
+
+                let prevDist = userTotalDist % pathLength;
+                userTotalDist += userSpeed;
+                let userDist = userTotalDist % pathLength;
+                
+                // DETECTAR CRUCE DE LÍNEA DE META PARA ENTRAR A BOXES
+                if(solicitadoPit && userDist < prevDist) {
+                    enBox = true;
+                    tiempoEnPit = 0;
+                    return;
+                }
+
+                let deltaVuelta = userSpeed / pathLength;
+                vuelta += deltaVuelta;
+
+                let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.05);
+                desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.5, factorMejoraNeumatico);
+
+                let point = path.getPointAtLength(userDist);
+                userDot.style.left = `${(point.x / 200) * 240}px`;
+                userDot.style.top = `${(point.y / 150) * 180}px`;
+
+                rivales.forEach(r => {
+                    r.desgaste = Math.max(20, r.desgaste - (0.05 * r.degFactor));
                     let speedRivalConDesgaste = r.baseSpeed * (r.desgaste / 100);
                     
                     r.totalDist += speedRivalConDesgaste;
@@ -501,7 +594,13 @@
             }, 60);
         }
 
-        function ordenarPitStop() { if(!enBox) enBox = true; }
+        function ordenarPitStop() { 
+            if(!enBox && !solicitadoPit) { 
+                solicitadoPit = true; 
+                document.getElementById("pit-btn").innerText = "⏳ Pit Stop Confirmado";
+                document.getElementById("pit-btn").style.background = "#555";
+            } 
+        }
 
         function finalizarCarrera() {
             clearInterval(carreraInterval);
