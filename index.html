@@ -86,7 +86,7 @@
 </head>
 <body>
 
-    <!-- PANTALLA INTRODUCION -->
+    <!-- PANTALLA INTRODUCCION -->
     <div id="intro-screen">
         <div class="intro-title-top">F1 PITWALL</div>
         <div class="intro-title-bottom">MANAGER 2026</div>
@@ -155,7 +155,7 @@
         </div>
 
         <div class="dashboard-grid">
-            <div class="dash-box">Posición: <b id="live-pos" style="color:#00ff66;">P22</b></div>
+            <div class="dash-box">Posición: <b id="live-pos" style="color:#00ff66;">P15</b></div>
             <div class="dash-box">Vuelta: <b id="live-lap">0/10</b></div>
             <div class="dash-box">Goma: <b id="live-compound">Blando</b> (<span id="live-tires">100%</span>)</div>
             <div class="dash-box">Estado: <b id="pit-status">Pista</b></div>
@@ -290,7 +290,7 @@
             for (let c in componentes) {
                 let lvl = componentes[c], costo = lvl * 50;
                 container.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#1e2430; padding:8px; border-radius:6px;">
+                    <div style="display:flex; justify-between; align-items:center; margin-bottom:8px; background:#1e2430; padding:8px; border-radius:6px;">
                         <span style="font-size:0.85rem;"><b>${c}</b> (Nvl ${lvl})</span>
                         <button class="btn" style="width:auto; padding:6px 12px; margin:0; font-size:0.8rem;" ${rp < costo ? 'disabled':''} onclick="mejorar('${c}', ${costo})">
                             Mejorar (+${costo} RP)
@@ -316,7 +316,6 @@
 
         function seleccionarProximoCompuesto(compuesto) { compuestoSiguiente = compuesto; }
 
-        /* SIMULACIÓN CON AUTOS CON LOS COLORES OFICIALES DE ESCUDERÍAS */
         function iniciarGranPremio() {
             document.getElementById("strategy-screen").classList.add("hidden");
             document.getElementById("race-screen").classList.remove("hidden");
@@ -330,14 +329,14 @@
             const path = document.getElementById("track-path");
             const pathLength = path.getTotalLength();
             
-            // Asignar el color oficial a tu auto
             const userColor = PARRILLA[miEscuderia].color;
             const userDot = document.getElementById("user-dot");
             userDot.style.background = userColor;
 
-            // Generar la lista plana de rivales con sus respectivos colores de escudería
             const rivalsContainer = document.getElementById("rivals-container");
             rivalsContainer.innerHTML = "";
+            
+            const compuestosPosibles = ["Blando", "Medio", "Duro"];
             rivales = [];
 
             for(let team in PARRILLA) {
@@ -348,18 +347,26 @@
                         div.style.background = PARRILLA[team].color;
                         div.style.opacity = "0.85";
                         rivalsContainer.appendChild(div);
+                        
+                        let compRival = compuestosPosibles[Math.floor(Math.random() * 3)];
+                        let initDist = Math.random() * pathLength;
                         rivales.push({ 
                             nombre: piloto.n,
                             escuderia: team,
                             el: div, 
-                            dist: Math.random() * pathLength, 
-                            speed: 1.4 + Math.random() * 0.4 
+                            dist: initDist,
+                            totalDist: initDist,
+                            baseSpeed: 1.4 + Math.random() * 0.35,
+                            desgaste: 100,
+                            compuesto: compRival,
+                            degFactor: compRival === "Blando" ? 1.8 : (compRival === "Medio" ? 1.0 : 0.6)
                         });
                     }
                 });
             }
 
             let userDist = 0;
+            let userTotalDist = 0;
 
             carreraInterval = setInterval(() => {
                 if(enBox) {
@@ -385,7 +392,8 @@
                 let userSpeed = (1.2 + (rendTotal * 0.08)) * multVel * desgasteFactor;
 
                 let deltaVuelta = userSpeed / pathLength;
-                userDist = (userDist + userSpeed) % pathLength;
+                userTotalDist += userSpeed;
+                userDist = userTotalDist % pathLength;
                 vuelta += deltaVuelta;
 
                 let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.08);
@@ -396,21 +404,69 @@
                 userDot.style.left = `${(point.x / 200) * 240}px`;
                 userDot.style.top = `${(point.y / 150) * 180}px`;
 
-                // Posicionar Rivales
-                let rivalesAdelante = 0;
+                // Actualizar Rivales con su propio Desgaste de Neumáticos
                 rivales.forEach(r => {
-                    r.dist = (r.dist + r.speed) % pathLength;
+                    r.desgaste = Math.max(10, r.desgaste - (0.15 * r.degFactor));
+                    let speedRivalConDesgaste = r.baseSpeed * (r.desgaste / 100);
+                    
+                    r.totalDist += speedRivalConDesgaste;
+                    r.dist = r.totalDist % pathLength;
+
                     let rPoint = path.getPointAtLength(r.dist);
                     r.el.style.left = `${(rPoint.x / 200) * 240}px`;
                     r.el.style.top = `${(rPoint.y / 150) * 180}px`;
-                    if(r.dist > userDist) rivalesAdelante++;
                 });
 
-                miPosicion = rivalesAdelante + 1;
+                // Ordenar posiciones según la distancia TOTAL acumulada
+                let todosLosAutos = [
+                    { nombre: miPiloto, escuderia: miEscuderia, distTotal: userTotalDist, esUser: true, neum: compuestoActual, deg: Math.max(0, Math.floor(desgaste)) },
+                    ...rivales.map(r => ({ nombre: r.nombre, escuderia: r.escuderia, distTotal: r.totalDist, esUser: false, neum: r.compuesto, deg: Math.floor(r.desgaste) }))
+                ];
 
+                todosLosAutos.sort((a, b) => b.distTotal - a.distTotal);
+
+                let userIndex = todosLosAutos.findIndex(a => a.esUser);
+                miPosicion = userIndex + 1;
+
+                // Render de Telemetría e Indicadores
                 document.getElementById("live-pos").innerText = `P${miPosicion}`;
                 document.getElementById("live-lap").innerText = `${Math.floor(vuelta)}/10`;
                 document.getElementById("live-tires").innerText = `${Math.max(0, Math.floor(desgaste))}%`;
+
+                // Render del Cuadro del Tracker de Posiciones en Pista
+                let autoAdelante = todosLosAutos[userIndex - 1];
+                let autoAtras = todosLosAutos[userIndex + 1];
+
+                let trackerHTML = `
+                    <div style="background:#151922; border:1px solid #323b4e; border-radius:8px; padding:8px; margin-top:10px; font-size:0.8rem; text-align:left;">
+                        <div style="color:#a1a1a6; margin-bottom:4px; font-weight:bold;">⚔️ LUCHA DE POSICIÓN:</div>
+                        
+                        ${autoAdelante ? `
+                        <div style="display:flex; justify-content:space-between; padding:3px 0; opacity:0.7;">
+                            <span><b>P${userIndex}</b> ${autoAdelante.nombre} (${autoAdelante.escuderia})</span>
+                            <span>🏎️ ${autoAdelante.neum}</span>
+                        </div>` : '<div style="color:#00ff66; font-size:0.75rem;">🌟 LÍDER DE LA CARRERA</div>'}
+                        
+                        <div style="display:flex; justify-content:space-between; padding:4px; background:#2d3548; border-radius:4px; border-left:4px solid ${PARRILLA[miEscuderia].color}; font-weight:bold; color:#00ff66; margin:3px 0;">
+                            <span><b>P${miPosicion}</b> ${miPiloto} (VOS)</span>
+                            <span>🏎️ ${compuestoActual} (${Math.max(0, Math.floor(desgaste))}%)</span>
+                        </div>
+
+                        ${autoAtras ? `
+                        <div style="display:flex; justify-content:space-between; padding:3px 0; opacity:0.7;">
+                            <span><b>P${userIndex + 2}</b> ${autoAtras.nombre} (${autoAtras.escuderia})</span>
+                            <span>🏎️ ${autoAtras.neum}</span>
+                        </div>` : '<div style="color:#ff3b30; font-size:0.75rem;">ÚLTIMO PUESTO</div>'}
+                    </div>
+                `;
+
+                let trackerContainer = document.getElementById("position-tracker");
+                if(!trackerContainer) {
+                    trackerContainer = document.createElement("div");
+                    trackerContainer.id = "position-tracker";
+                    document.getElementById("race-screen").appendChild(trackerContainer);
+                }
+                trackerContainer.innerHTML = trackerHTML;
 
                 if(vuelta >= 10) finalizarCarrera();
             }, 60);
