@@ -14,6 +14,15 @@
         .btn-pit { background: #e5a900; color: #000; }
         .hidden { display: none !important; }
         
+        /* Botón de Audio Mute */
+        #audio-control {
+            position: fixed; top: 10px; right: 10px; z-index: 1000;
+            background: rgba(21, 25, 34, 0.8); border: 1px solid #323b4e;
+            color: #fff; border-radius: 50%; width: 36px; height: 36px;
+            font-size: 1.1rem; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; backdrop-filter: blur(4px);
+        }
+
         #intro-screen {
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             height: 90vh; perspective: 1000px;
@@ -78,6 +87,12 @@
     </style>
 </head>
 <body>
+
+    <!-- REPRODUCTOR DE AUDIO -->
+    <audio id="bg-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73228.mp3" type="audio/mpeg">
+    </audio>
+    <button id="audio-control" class="hidden" onclick="toggleMute()">🔊</button>
 
     <div id="intro-screen">
         <div class="intro-title-top">F1 PITWALL</div>
@@ -195,14 +210,13 @@
             "GP de Las Vegas", "GP de Catar (Lusail)", "GP de Abu Dhabi (Yas Marina)"
         ];
 
-        // FORMAS SVG DE CIRCUITOS DISTINTOS
         const TRAZADOS_CIRCUITOS = [
-            "M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z", // Estándar / Melbourne
-            "M 20,40 L 180,40 L 160,80 L 180,120 L 100,130 L 20,100 L 40,70 Z", // Ovalóide / Monza
-            "M 30,30 L 170,30 L 150,70 L 180,90 L 120,130 L 70,100 L 40,120 L 20,70 Z", // Técnico / Silverstone
-            "M 40,20 L 160,20 C 190,40 190,80 160,90 L 120,90 L 120,130 L 80,130 L 80,90 L 40,90 Z", // Callejero / Mónaco
-            "M 30,50 L 80,20 L 150,30 L 180,70 L 140,120 L 80,100 L 50,130 L 20,90 Z", // Rápido / Spa
-            "M 50,30 L 140,20 L 170,60 L 130,80 L 160,120 L 90,130 L 40,90 L 70,60 Z"  // Ratonero / Hungría
+            "M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z",
+            "M 20,40 L 180,40 L 160,80 L 180,120 L 100,130 L 20,100 L 40,70 Z",
+            "M 30,30 L 170,30 L 150,70 L 180,90 L 120,130 L 70,100 L 40,120 L 20,70 Z",
+            "M 40,20 L 160,20 C 190,40 190,80 160,90 L 120,90 L 120,130 L 80,130 L 80,90 L 40,90 Z",
+            "M 30,50 L 80,20 L 150,30 L 180,70 L 140,120 L 80,100 L 50,130 L 20,90 Z",
+            "M 50,30 L 140,20 L 170,60 L 130,80 L 160,120 L 90,130 L 40,90 L 70,60 Z"
         ];
 
         let miEscuderia = "McLaren", miPiloto = "Lando Norris", rp = 0, fechaCalendario = 0;
@@ -212,9 +226,27 @@
         let rivales = [];
 
         function iniciarConfiguracion() {
+            // REPRODUCIR MÚSICA
+            const music = document.getElementById("bg-music");
+            music.volume = 0.3; // Volumen moderado de fondo
+            music.play().catch(e => console.log("Audio block", e));
+            document.getElementById("audio-control").classList.remove("hidden");
+
             document.getElementById("intro-screen").classList.add("hidden");
             document.getElementById("setup-screen").classList.remove("hidden");
             init();
+        }
+
+        function toggleMute() {
+            const music = document.getElementById("bg-music");
+            const btn = document.getElementById("audio-control");
+            if (music.muted) {
+                music.muted = false;
+                btn.innerText = "🔊";
+            } else {
+                music.muted = true;
+                btn.innerText = "🔇";
+            }
         }
 
         function init() {
@@ -315,7 +347,6 @@
             document.getElementById("race-screen").classList.remove("hidden");
             document.getElementById("gp-title").innerText = CALENDARIO_2026[fechaCalendario % CALENDARIO_2026.length];
             
-            // CAMBIAR TRAZADO DEL CIRCUITO SEGÚN LA FECHA
             const trazadoPath = TRAZADOS_CIRCUITOS[fechaCalendario % TRAZADOS_CIRCUITOS.length];
             document.getElementById("track-path").setAttribute("d", trazadoPath);
             document.getElementById("track-inner-path").setAttribute("d", trazadoPath);
@@ -338,7 +369,6 @@
             const compuestosPosibles = ["Blando", "Medio", "Duro"];
             rivales = [];
 
-            // BALANCE DE VELOCIDAD BASE PARA IA COMPRENSIVA
             let baseVelocidadGlobal = 1.6;
 
             for(let team in PARRILLA) {
@@ -351,9 +381,8 @@
                         rivalsContainer.appendChild(div);
                         
                         let compRival = compuestosPosibles[Math.floor(Math.random() * 3)];
-                        let initDist = Math.random() * (pathLength * 0.15); // Largada agrupada
+                        let initDist = Math.random() * (pathLength * 0.15);
                         
-                        // IA mejor nivelada
                         let variacionRival = (Math.random() * 0.2) - 0.1;
                         rivales.push({ 
                             nombre: piloto.n,
@@ -386,7 +415,6 @@
 
                 document.getElementById("pit-status").innerText = "Pista";
                 
-                // MULTIPLICADORES DE NEUMÁTICOS REBALANCEADOS
                 let multVel = 1.0, degBaseVuelta = 20;
                 if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
                 if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
@@ -395,7 +423,6 @@
                 let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
                 let desgasteFactor = Math.max(0.4, desgaste / 100);
                 
-                // Velocidad equilibrada respecto a los rivales
                 let userSpeed = (1.45 + (rendTotal * 0.04)) * multVel * desgasteFactor;
 
                 let deltaVuelta = userSpeed / pathLength;
