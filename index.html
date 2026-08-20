@@ -83,6 +83,20 @@
         th, td { padding: 6px; text-align: left; border-bottom: 1px solid #232936; }
         th { color: #e10600; }
         .user-row { background: #341214; color: #ff6b6b; font-weight: bold; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center;
+            z-index: 2000; backdrop-filter: blur(3px);
+        }
+        .modal-box {
+            background: #151922; border: 1px solid #323b4e; border-radius: 12px;
+            padding: 20px; width: 85%; max-width: 320px; text-align: left;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+        .progress-bar-bg { background: #202634; border-radius: 8px; height: 16px; width: 100%; margin: 10px 0; overflow: hidden; border: 1px solid #323b4e; }
+        .progress-bar-fill { height: 100%; background: #00ff66; width: 100%; transition: width 0.3s ease; }
     </style>
 </head>
 <body>
@@ -114,28 +128,42 @@
             <h2 id="team-title" style="color:#fff;"></h2>
             <p id="rp-display" style="margin-top:5px;">Puntos RP: 0</p>
             <p id="next-gp" style="color:#a1a1a6; font-size:0.9rem; margin-top:5px;"></p>
-            <button class="btn" onclick="mostrarPantallaEstrategia()">🏎️ Simular Gran Premio</button>
+            <button class="btn" onclick="mostrarPantallaEstrategia()">🏎️ Configurar Gran Premio</button>
         </div>
 
         <div class="card">
-            <h3>Taller de I+D</h3>
+            <h3>Taller de I+D (Toque para Diagnóstico)</h3>
             <div id="upgrades-list" style="margin-top:10px;"></div>
         </div>
     </div>
 
     <div id="strategy-screen" class="card hidden">
-        <h3>Estrategia de Neumáticos de Salida</h3>
-        <p style="color:#a1a1a6; font-size:0.85rem; margin-top:5px;">Elegí con qué compuesto vas a largar la carrera:</p>
+        <h3 id="strat-gp-title">Estrategia del Gran Premio</h3>
+        
+        <div style="background:#1e2430; padding:10px; border-radius:8px; margin:10px 0; text-align:left; font-size:0.85rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span>🌧️ Prob. Lluvia: <b id="rain-prob" style="color:#00ff66;">0%</b></span>
+                <span>Estado: <b id="weather-status">Seco</b></span>
+            </div>
+            <div style="margin-top:6px; font-size:0.8rem; color:#a1a1a6;">
+                Trazado técnico de alta velocidad. Estrategia clave en degradación.
+            </div>
+        </div>
+
+        <p style="color:#a1a1a6; font-size:0.85rem; margin-top:5px;">Elegí compuesto inicial:</p>
         
         <div class="tire-selector">
             <button id="btn-soft" class="tire-btn tire-soft selected" onclick="elegirGomaInicial('Blando', this)">
-                🔴 Blando (Rápido | Desgaste: ~20%/vuelta)
+                🔴 Blando (Máxima velocidad | Alto desgaste)
             </button>
             <button id="btn-medium" class="tire-btn tire-medium" onclick="elegirGomaInicial('Medio', this)">
-                🟡 Medio (Equilibrado | Desgaste: ~12%/vuelta)
+                🟡 Medio (Equilibrado)
             </button>
             <button id="btn-hard" class="tire-btn tire-hard" onclick="elegirGomaInicial('Duro', this)">
-                ⚪ Duro (Más Lento | Desgaste: ~6%/vuelta)
+                ⚪ Duro (Alta durabilidad | Ritmo más lento)
+            </button>
+            <button id="btn-wet" class="tire-btn" style="background:#007aff; color:#fff;" onclick="elegirGomaInicial('Lluvia', this)">
+                🔵 Intermedio / Lluvia (Para mojado)
             </button>
         </div>
 
@@ -154,6 +182,11 @@
             <div id="rivals-container"></div>
         </div>
 
+        <div id="radio-box" style="background:#0f172a; border:1px solid #1e293b; border-left:4px solid #3b82f6; border-radius:6px; padding:8px; margin-top:5px; text-align:left; font-size:0.8rem;">
+            <div style="color:#3b82f6; font-weight:bold; font-size:0.7rem;">📻 RADIO DE BOXES EN VIVO</div>
+            <div id="radio-msg" style="margin-top:2px; font-style:italic; color:#e2e8f0;">"Monitoreando parámetros del monoplaza..."</div>
+        </div>
+
         <div class="dashboard-grid">
             <div class="dash-box">Posición: <b id="live-pos" style="color:#00ff66;">P15</b></div>
             <div class="dash-box">Vuelta: <b id="live-lap">0/10</b></div>
@@ -162,11 +195,12 @@
         </div>
 
         <div style="margin-top:10px;">
-            <p style="font-size:0.8rem; text-align:left;">Cambiar en el próximo Pit Stop a:</p>
+            <p style="font-size:0.8rem; text-align:left;">Próximo compuesto para el Pit Stop:</p>
             <div style="display:flex; gap:6px; margin-top:5px;">
                 <button class="tire-btn tire-soft" style="flex:1; padding:6px; text-align:center;" onclick="seleccionarProximoCompuesto('Blando')">Blando</button>
                 <button class="tire-btn tire-medium" style="flex:1; padding:6px; text-align:center;" onclick="seleccionarProximoCompuesto('Medio')">Medio</button>
                 <button class="tire-btn tire-hard" style="flex:1; padding:6px; text-align:center;" onclick="seleccionarProximoCompuesto('Duro')">Duro</button>
+                <button class="tire-btn" style="flex:1; padding:6px; text-align:center; background:#007aff; color:#fff;" onclick="seleccionarProximoCompuesto('Lluvia')">Lluvia</button>
             </div>
         </div>
 
@@ -181,7 +215,34 @@
         </table>
         <button class="btn" onclick="volverAlMuro()">Siguiente Gran Premio</button>
     </div>
-    <script>
+
+    <!-- Modal Diagnóstico Componente -->
+    <div id="diag-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 id="modal-comp-name" style="color:#e10600; margin-bottom:5px;">Componente</h3>
+            <p style="font-size:0.85rem; color:#a1a1a6;">Nivel Actual: <span id="modal-comp-lvl" style="color:#fff; font-weight:bold;">1</span></p>
+            
+            <div style="margin-top:12px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Desgaste Acumulado:</span>
+                    <b id="modal-comp-wear-txt" style="color:#ff3b30;">0%</b>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="modal-comp-bar" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-top:10px; background:#1e2430; padding:8px; border-radius:6px;">
+                <span>Costo de Reparación:</span>
+                <b id="modal-comp-repair-cost" style="color:#00ff66;">30 RP</b>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:15px;">
+                <button class="btn" style="background:#202634; border:1px solid #323b4e;" onclick="cerrarModal()">Cerrar</button>
+                <button id="modal-repair-btn" class="btn" style="background:#00c853;" onclick="repararComponente()">Reparar</button>
+            </div>
+        </div>
+        <script>
         const PARRILLA = {
             "McLaren": { color: "#ff8000", pilotos: [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}] },
             "Ferrari": { color: "#e8002d", pilotos: [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}] },
@@ -217,24 +278,37 @@
         ];
 
         let miEscuderia = "McLaren", miPiloto = "Lando Norris", rp = 0, fechaCalendario = 0;
-        let componentes = { "Alerones": 1, "Motor": 1, "Frenos": 1, "Suspensión": 1, "Neumáticos": 1 };
+        let componentes = { 
+            "Alerones": { lvl: 1, desgaste: 0 }, 
+            "Motor": { lvl: 1, desgaste: 0 }, 
+            "Frenos": { lvl: 1, desgaste: 0 }, 
+            "Suspensión": { lvl: 1, desgaste: 0 }, 
+            "Neumáticos": { lvl: 1, desgaste: 0 } 
+        };
+        
         let carreraInterval, vuelta = 0, desgaste = 100, enBox = false, miPosicion = 15;
         let compuestoInicial = "Blando", compuestoActual = "Blando", compuestoSiguiente = "Blando";
-        let rivales = [];
-        let tiempoEnPitUser = 0;
+        let rivales = [], tiempoEnPitUser = 0;
+        
+        let probLluvia = 0, climaCarrera = "Seco", dañoVehiculoMult = 1.0;
+        let componenteSeleccionado = null;
+
+        const MENSAJES_PILOTO = [
+            { txt: "¡Siento vibraciones en la suspensión!", ef: () => { dañoVehiculoMult = 0.85; }, t: "f" },
+            { txt: "Perdí potencia en la recta principal.", ef: () => { dañoVehiculoMult = 0.90; }, t: "f" },
+            { txt: "¡Bandera amarilla adelante en curva 3!", ef: () => {}, t: "a" },
+            { txt: "Las gomas sufren degradación acelerada.", ef: () => { desgaste -= 8; }, t: "n" },
+            { txt: "Gotas de agua en la visera...", ef: () => {}, t: "c" },
+            { txt: "El auto va impecable, ¡puedo empujar!", ef: () => { dañoVehiculoMult = 1.05; }, t: "p" }
+        ];
 
         function iniciarConfiguracion() {
             const music = document.getElementById("bg-music");
             if (music) {
                 music.volume = 0.3;
-                let playPromise = music.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(e => console.log("Audio no bloqueante:", e));
-                }
+                music.play().catch(e => console.log("Audio:", e));
             }
-            const audioControl = document.getElementById("audio-control");
-            if (audioControl) audioControl.classList.remove("hidden");
-
+            document.getElementById("audio-control").classList.remove("hidden");
             document.getElementById("intro-screen").classList.add("hidden");
             document.getElementById("setup-screen").classList.remove("hidden");
             init();
@@ -243,13 +317,8 @@
         function toggleMute() {
             const music = document.getElementById("bg-music");
             const btn = document.getElementById("audio-control");
-            if (music.muted) {
-                music.muted = false;
-                btn.innerText = "🔊";
-            } else {
-                music.muted = true;
-                btn.innerText = "🔇";
-            }
+            music.muted = !music.muted;
+            btn.innerText = music.muted ? "🔇" : "🔊";
         }
 
         function init() {
@@ -317,24 +386,75 @@
             const container = document.getElementById("upgrades-list");
             container.innerHTML = "";
             for (let c in componentes) {
-                let lvl = componentes[c], costo = lvl * 50;
+                let comp = componentes[c];
+                let costo = comp.lvl * 50;
+                let colorWear = comp.desgaste > 40 ? '#ff3b30' : (comp.desgaste > 20 ? '#ffcc00' : '#00ff66');
+                
                 container.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#1e2430; padding:8px; border-radius:6px;">
-                        <span style="font-size:0.85rem;"><b>${c}</b> (Nvl ${lvl})</span>
-                        <button class="btn" style="width:auto; padding:6px 12px; margin:0; font-size:0.8rem;" ${rp < costo ? 'disabled':''} onclick="mejorar('${c}', ${costo})">
-                            Mejorar (+${costo} RP)
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#1e2430; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="abrirModalDiag('${c}')">
+                        <div style="text-align:left;">
+                            <span style="font-size:0.85rem;"><b>${c}</b> (Nvl ${comp.lvl})</span><br>
+                            <span style="font-size:0.75rem; color:${colorWear};">Desgaste: ${comp.desgaste}%</span>
+                        </div>
+                        <button class="btn" style="width:auto; padding:6px 10px; margin:0; font-size:0.75rem;" ${rp < costo ? 'disabled':''} onclick="event.stopPropagation(); mejorar('${c}', ${costo})">
+                            +Nivel (${costo} RP)
                         </button>
                     </div>`;
             }
         }
 
+        function abrirModalDiag(nombreComp) {
+            componenteSeleccionado = nombreComp;
+            let comp = componentes[nombreComp];
+            document.getElementById("modal-comp-name").innerText = nombreComp;
+            document.getElementById("modal-comp-lvl").innerText = comp.lvl;
+            document.getElementById("modal-comp-wear-txt").innerText = `${comp.desgaste}%`;
+            
+            let bar = document.getElementById("modal-comp-bar");
+            bar.style.width = `${comp.desgaste}%`;
+            bar.style.background = comp.desgaste > 40 ? '#ff3b30' : (comp.desgaste > 20 ? '#ffcc00' : '#00ff66');
+            
+            let costoRep = Math.floor(comp.desgaste * 1.5);
+            document.getElementById("modal-comp-repair-cost").innerText = `${costoRep} RP`;
+            
+            let btnRep = document.getElementById("modal-repair-btn");
+            btnRep.disabled = (rp < costoRep || comp.desgaste === 0);
+
+            document.getElementById("diag-modal").classList.remove("hidden");
+        }
+
+        function cerrarModal() {
+            document.getElementById("diag-modal").classList.add("hidden");
+            componenteSeleccionado = null;
+        }
+
+        function repararComponente() {
+            if(!componenteSeleccionado) return;
+            let comp = componentes[componenteSeleccionado];
+            let costoRep = Math.floor(comp.desgaste * 1.5);
+
+            if(rp >= costoRep && comp.desgaste > 0) {
+                rp -= costoRep;
+                comp.desgaste = 0;
+                renderTaller();
+                cerrarModal();
+            }
+        }
+
         function mejorar(c, costo) {
-            if(rp >= costo) { rp -= costo; componentes[c]++; renderTaller(); }
+            if(rp >= costo) { rp -= costo; componentes[c].lvl++; renderTaller(); }
         }
 
         function mostrarPantallaEstrategia() {
             document.getElementById("game-screen").classList.add("hidden");
             document.getElementById("strategy-screen").classList.remove("hidden");
+            
+            probLluvia = Math.floor(Math.random() * 100);
+            climaCarrera = probLluvia > 65 ? "Lluvia" : "Seco";
+
+            document.getElementById("rain-prob").innerText = `${probLluvia}%`;
+            document.getElementById("rain-prob").style.color = probLluvia > 50 ? "#ff3b30" : "#00ff66";
+            document.getElementById("weather-status").innerText = probLluvia > 65 ? "🌧️ Lluvia Ligera" : "☀️ Seco";
         }
 
         function elegirGomaInicial(compuesto, el) {
@@ -361,7 +481,7 @@
             document.getElementById("track-path").setAttribute("d", trazadoPath);
             document.getElementById("track-inner-path").setAttribute("d", trazadoPath);
 
-            vuelta = 0; desgaste = 100; enBox = false; miPosicion = 15;
+            vuelta = 0; desgaste = 100; enBox = false; miPosicion = 15; dañoVehiculoMult = 1.0;
             compuestoActual = compuestoInicial;
             compuestoSiguiente = compuestoInicial;
             document.getElementById("live-compound").innerText = compuestoActual;
@@ -369,9 +489,7 @@
             const path = document.getElementById("track-path");
             const pathLength = path.getTotalLength();
             
-            const userColor = PARRILLA[miEscuderia].color;
-            const userDot = document.getElementById("user-dot");
-            userDot.style.background = userColor;
+            document.getElementById("user-dot").style.background = PARRILLA[miEscuderia].color;
 
             const rivalsContainer = document.getElementById("rivals-container");
             rivalsContainer.innerHTML = "";
@@ -390,22 +508,16 @@
                         div.style.opacity = "0.85";
                         rivalsContainer.appendChild(div);
                         
-                        let compRival = compuestosPosibles[Math.floor(Math.random() * 3)];
+                        let compRival = (climaCarrera === "Lluvia" && Math.random() < 0.7) ? "Lluvia" : compuestosPosibles[Math.floor(Math.random() * 3)];
                         let initDist = Math.random() * (pathLength * 0.15);
-                        let variacionRival = (Math.random() * 0.2) - 0.1;
 
                         rivales.push({ 
-                            nombre: piloto.n,
-                            escuderia: team,
-                            el: div, 
-                            dist: initDist,
-                            totalDist: initDist,
-                            baseSpeed: baseVelocidadGlobal + variacionRival,
-                            desgaste: 100,
-                            compuesto: compRival,
+                            nombre: piloto.n, escuderia: team, el: div, 
+                            dist: initDist, totalDist: initDist,
+                            baseSpeed: baseVelocidadGlobal + ((Math.random() * 0.2) - 0.1),
+                            desgaste: 100, compuesto: compRival,
                             degFactor: compRival === "Blando" ? 0.8 : (compRival === "Medio" ? 0.5 : 0.25),
-                            enBox: false,
-                            tiempoEnPit: 0
+                            enBox: false, tiempoEnPit: 0
                         });
                     }
                 });
@@ -414,11 +526,17 @@
             let userTotalDist = 0;
 
             carreraInterval = setInterval(() => {
+                if (Math.random() < 0.03) {
+                    let evento = MENSAJES_PILOTO[Math.floor(Math.random() * MENSAJES_PILOTO.length)];
+                    document.getElementById("radio-msg").innerText = `"${miPiloto}: ${evento.txt}"`;
+                    evento.ef();
+                }
+
                 if(enBox) {
                     tiempoEnPitUser += 60;
                     let segs = Math.max(0, ((5000 - tiempoEnPitUser) / 1000)).toFixed(1);
                     document.getElementById("pit-status").innerText = `🔧 Box: ${segs}s`;
-                    document.getElementById("pit-btn").innerText = `⏳ PARADO EN BOXES (${segs}s)`;
+                    document.getElementById("pit-btn").innerText = `⏳ EN BOXES (${segs}s)`;
                     document.getElementById("pit-btn").style.background = "#555";
                     
                     if(tiempoEnPitUser >= 5000) {
@@ -435,10 +553,12 @@
                     if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
                     if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
                     if(compuestoActual === "Duro") { multVel = 0.88; degBaseVuelta = 6; }
+                    if(compuestoActual === "Lluvia") { multVel = climaCarrera === "Lluvia" ? 1.1 : 0.6; degBaseVuelta = 10; }
 
-                    let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
+                    let penalizacionDesgasteComponentes = Object.values(componentes).reduce((acc, c) => acc + (c.desgaste * 0.003), 0);
+                    let rendTotal = Object.values(componentes).reduce((a,b)=>a+b.lvl, 0);
                     let desgasteFactor = Math.max(0.4, desgaste / 100);
-                    let userSpeed = (1.45 + (rendTotal * 0.04)) * multVel * desgasteFactor;
+                    let userSpeed = (1.45 + (rendTotal * 0.04)) * multVel * desgasteFactor * dañoVehiculoMult * Math.max(0.5, 1 - penalizacionDesgasteComponentes);
 
                     userTotalDist += userSpeed;
                     let userDist = userTotalDist % pathLength;
@@ -446,12 +566,12 @@
                     let deltaVuelta = userSpeed / pathLength;
                     vuelta += deltaVuelta;
 
-                    let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.05);
+                    let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"].lvl - 1) * 0.05);
                     desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.5, factorMejoraNeumatico);
 
                     let point = path.getPointAtLength(userDist);
-                    userDot.style.left = `${(point.x / 200) * 240}px`;
-                    userDot.style.top = `${(point.y / 150) * 180}px`;
+                    document.getElementById("user-dot").style.left = `${(point.x / 200) * 240}px`;
+                    document.getElementById("user-dot").style.top = `${(point.y / 150) * 180}px`;
                 }
 
                 rivales.forEach(r => {
@@ -468,7 +588,6 @@
                             r.enBox = false;
                             r.desgaste = 100;
                             r.compuesto = compuestosPosibles[Math.floor(Math.random() * 3)];
-                            r.degFactor = r.compuesto === "Blando" ? 0.8 : (r.compuesto === "Medio" ? 0.5 : 0.25);
                             r.el.style.opacity = "0.85";
                         }
                     } else {
@@ -485,55 +604,30 @@
                 });
 
                 let todosLosAutos = [
-                    { nombre: miPiloto, escuderia: miEscuderia, distTotal: userTotalDist, esUser: true, neum: compuestoActual, deg: Math.max(0, Math.floor(desgaste)) },
-                    ...rivales.map(r => ({ nombre: r.nombre, escuderia: r.escuderia, distTotal: r.totalDist, esUser: false, neum: r.compuesto, deg: Math.floor(r.desgaste) }))
+                    { nombre: miPiloto, escuderia: miEscuderia, distTotal: userTotalDist, esUser: true },
+                    ...rivales.map(r => ({ nombre: r.nombre, escuderia: r.escuderia, distTotal: r.totalDist, esUser: false }))
                 ];
 
                 todosLosAutos.sort((a, b) => b.distTotal - a.distTotal);
-
-                let userIndex = todosLosAutos.findIndex(a => a.esUser);
-                miPosicion = userIndex + 1;
+                miPosicion = todosLosAutos.findIndex(a => a.esUser) + 1;
 
                 document.getElementById("live-pos").innerText = `P${miPosicion}`;
                 document.getElementById("live-lap").innerText = `${Math.floor(vuelta)}/10`;
                 document.getElementById("live-tires").innerText = `${Math.max(0, Math.floor(desgaste))}%`;
 
-                let autoAdelante = todosLosAutos[userIndex - 1];
-                let autoAtras = todosLosAutos[userIndex + 1];
-
-                let trackerHTML = `
-                    <div style="background:#151922; border:1px solid #323b4e; border-radius:8px; padding:8px; margin-top:10px; font-size:0.8rem; text-align:left;">
-                        <div style="color:#a1a1a6; margin-bottom:4px; font-weight:bold;">⚔️ LUCHA DE POSICIÓN:</div>
-                        
-                        ${autoAdelante ? `
-                        <div style="display:flex; justify-content:space-between; padding:3px 0; opacity:0.7;">
-                            <span><b>P${userIndex}</b> ${autoAdelante.nombre} (${autoAdelante.escuderia})</span>
-                            <span>🏎️ ${autoAdelante.neum}</span>
-                        </div>` : '<div style="color:#00ff66; font-size:0.75rem;">🌟 LÍDER DE LA CARRERA</div>'}
-                        
-                        <div style="display:flex; justify-content:space-between; padding:4px; background:#2d3548; border-radius:4px; border-left:4px solid ${PARRILLA[miEscuderia].color}; font-weight:bold; color:#00ff66; margin:3px 0;">
-                            <span><b>P${miPosicion}</b> ${miPiloto} (VOS)</span>
-                            <span>🏎️ ${compuestoActual} (${Math.max(0, Math.floor(desgaste))}%)</span>
-                        </div>
-
-                        ${autoAtras ? `
-                        <div style="display:flex; justify-content:space-between; padding:3px 0; opacity:0.7;">
-                            <span><b>P${userIndex + 2}</b> ${autoAtras.nombre} (${autoAtras.escuderia})</span>
-                            <span>🏎️ ${autoAtras.neum}</span>
-                        </div>` : '<div style="color:#ff3b30; font-size:0.75rem;">ÚLTIMO PUESTO</div>'}
-                    </div>
-                `;
-
-                let trackerContainer = document.getElementById("position-tracker");
-                if(!trackerContainer) {
-                    trackerContainer = document.createElement("div");
-                    trackerContainer.id = "position-tracker";
-                    document.getElementById("race-screen").appendChild(trackerContainer);
-                }
-                trackerContainer.innerHTML = trackerHTML;
-
                 if(vuelta >= 10) finalizarCarrera();
             }, 60);
+        }
+
+        function aplicarDesgasteSegunPosicion(pos) {
+            let incremento = 5;
+            if (pos <= 5) incremento = 20;
+            else if (pos <= 10) incremento = 15;
+            else if (pos <= 15) incremento = 10;
+            
+            for (let c in componentes) {
+                componentes[c].desgaste = Math.min(100, componentes[c].desgaste + incremento);
+            }
         }
 
         function finalizarCarrera() {
@@ -541,6 +635,8 @@
             document.getElementById("race-screen").classList.add("hidden");
             document.getElementById("results-screen").classList.remove("hidden");
 
+            aplicarDesgasteSegunPosicion(miPosicion);
+            
             let ganados = (23 - miPosicion) * 25;
             rp += ganados;
             fechaCalendario++;
@@ -558,9 +654,9 @@
                     pos++;
                 });
             }
-        }
-
-        function volverAlMuro() {
+            }
+            
+            function volverAlMuro() {
             document.getElementById("results-screen").classList.add("hidden");
             document.getElementById("game-screen").classList.remove("hidden");
             actualizarCalendarioText();
