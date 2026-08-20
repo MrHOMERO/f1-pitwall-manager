@@ -226,12 +226,23 @@
         let rivales = [];
 
         function iniciarConfiguracion() {
-            // REPRODUCIR MÚSICA
+            // REPRODUCIR MÚSICA (de forma segura para evitar bloquear la interfaz)
             const music = document.getElementById("bg-music");
-            music.volume = 0.3; // Volumen moderado de fondo
-            music.play().catch(e => console.log("Audio block", e));
-            document.getElementById("audio-control").classList.remove("hidden");
+            if (music) {
+                music.volume = 0.3;
+                let playPromise = music.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        console.log("Audio no disponible o bloqueado por el navegador:", e);
+                    });
+                }
+            }
+            
+            // MOSTRAR BOTÓN MUTE
+            const audioControl = document.getElementById("audio-control");
+            if (audioControl) audioControl.classList.remove("hidden");
 
+            // AVANZAR A LA SIGUIENTE PANTALLA
             document.getElementById("intro-screen").classList.add("hidden");
             document.getElementById("setup-screen").classList.remove("hidden");
             init();
