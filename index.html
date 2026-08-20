@@ -6,33 +6,77 @@
     <title>F1 Pitwall Manager 2026</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #0b0e14; color: #fff; padding: 12px; text-align: center; }
+        body { background-color: #0b0e14; color: #fff; padding: 12px; text-align: center; overflow-x: hidden; }
         h1 { color: #e10600; font-size: 1.5rem; letter-spacing: 1px; }
         .card { background: #151922; border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #232936; }
-        .btn { background: #e10600; color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 8px; }
+        .btn { background: #e10600; color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 8px; transition: transform 0.2s, filter 0.2s; }
+        .btn:active { transform: scale(0.98); }
         .btn-pit { background: #e5a900; color: #000; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         
-        .grid-select { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; max-height: 200px; overflow-y: auto; }
-        .option-btn { background: #202634; border: 1px solid #323b4e; color: #fff; padding: 10px; border-radius: 8px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        .option-btn.selected { border-color: #e10600; background: #321618; }
+        /* PANTALLA INTRO CINEMÁTICA */
+        #intro-screen {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 90vh; perspective: 1000px;
+        }
+        .intro-title-top {
+            font-size: 2.2rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(225,6,0,0.8);
+            animation: flyInTop 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .intro-title-bottom {
+            font-size: 3rem; font-weight: 900; color: #e10600; letter-spacing: 3px;
+            animation: flyInBottom 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .intro-subtitle {
+            font-size: 1rem; color: #8a94a6; margin-top: 10px; opacity: 0;
+            animation: fadeIn 1s 1s forwards;
+        }
+        .btn-start {
+            opacity: 0; animation: fadeIn 1s 1.4s forwards; width: 80%; max-width: 280px; margin-top: 30px; font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(225,6,0,0.5);
+        }
+
+        @keyframes flyInTop {
+            0% { transform: translateY(-150px) scale(0.5); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes flyInBottom {
+            0% { transform: translateY(150px) scale(0.5); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            100% { opacity: 1; }
+        }
+
+        /* GRID Y BOTONES DE SELECCIÓN DE EQUIPOS CON COLORES OFICIALES */
+        .grid-select { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; max-height: 220px; overflow-y: auto; }
+        .option-btn { 
+            background: #202634; border: 2px solid #323b4e; color: #fff; padding: 10px; 
+            border-radius: 8px; text-align: left; cursor: pointer; display: flex; 
+            align-items: center; justify-content: space-between; font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        .option-btn.selected { 
+            background: #2d3548; font-weight: bold; box-shadow: 0 0 10px rgba(255,255,255,0.2); 
+        }
+        .color-badge { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid #fff; }
         .flag { font-size: 1.2rem; }
 
-        /* Circuito SVG y Animación */
+        /* CIRCUITO SVG Y AUTOS COLORIDOS */
         #track-container { position: relative; width: 240px; height: 180px; margin: 10px auto; background: #1a1f2c; border-radius: 12px; border: 1px solid #2d3548; }
         svg { width: 100%; height: 100%; }
-        .car-dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; transform: translate(-50%, -50%); transition: all 0.05s linear; }
-        #user-dot { background: #00ff66; box-shadow: 0 0 10px #00ff66; z-index: 10; }
-        .rival-dot { background: #e10600; opacity: 0.7; }
+        .car-dot { width: 9px; height: 9px; border-radius: 50%; position: absolute; transform: translate(-50%, -50%); transition: all 0.05s linear; border: 1px solid #000; }
+        #user-dot { z-index: 10; box-shadow: 0 0 12px #fff; border: 2px solid #fff; }
 
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; margin-top: 10px; }
         .dash-box { background: #1e2430; padding: 8px; border-radius: 6px; text-align: left; }
         
-        .tire-selector { display: flex; gap: 6px; margin-top: 8px; }
-        .tire-btn { flex: 1; padding: 8px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; color: #000; font-size: 0.75rem; }
+        .tire-selector { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .tire-btn { padding: 12px; border-radius: 8px; font-weight: bold; border: 2px solid transparent; cursor: pointer; text-align: left; font-size: 0.85rem; }
+        .tire-btn.selected { border-color: #00ff66; }
         .tire-soft { background: #ff3b30; color: #fff; }
-        .tire-medium { background: #ffcc00; }
-        .tire-hard { background: #ffffff; }
+        .tire-medium { background: #ffcc00; color: #000; }
+        .tire-hard { background: #ffffff; color: #000; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem; }
         th, td { padding: 6px; text-align: left; border-bottom: 1px solid #232936; }
@@ -42,10 +86,16 @@
 </head>
 <body>
 
-    <h1>F1 PITWALL 2026</h1>
+    <!-- PANTALLA INTRODUCION -->
+    <div id="intro-screen">
+        <div class="intro-title-top">F1 PITWALL</div>
+        <div class="intro-title-bottom">MANAGER 2026</div>
+        <div class="intro-subtitle">Estrategia, I+D y Telemetría en Vivo</div>
+        <button class="btn btn-start" onclick="iniciarConfiguracion()">COMENZAR JUEGO</button>
+    </div>
 
-    <!-- PANTALLA SELECCIÓN -->
-    <div id="setup-screen" class="card">
+    <!-- PANTALLA SELECCIÓN DE EQUIPO -->
+    <div id="setup-screen" class="card hidden">
         <h3>Elegí tu Escudería</h3>
         <div id="team-options" class="grid-select"></div>
 
@@ -55,19 +105,39 @@
         <button class="btn" style="margin-top:15px;" onclick="confirmarEquipo()">Tomar el Mando</button>
     </div>
 
-    <!-- PANTALLA PRINCIPAL -->
+    <!-- PANTALLA PRINCIPAL / DASHBOARD -->
     <div id="game-screen" class="hidden">
-        <div class="card">
-            <h2 id="team-title" style="color:#e10600;"></h2>
+        <div class="card" id="team-card-banner">
+            <h2 id="team-title" style="color:#fff;"></h2>
             <p id="rp-display" style="margin-top:5px;">Puntos RP: 0</p>
             <p id="next-gp" style="color:#a1a1a6; font-size:0.9rem; margin-top:5px;"></p>
-            <button class="btn" onclick="iniciarGranPremio()">🏎️ Disputar Gran Premio</button>
+            <button class="btn" onclick="mostrarPantallaEstrategia()">🏎️ Simular Gran Premio</button>
         </div>
 
         <div class="card">
             <h3>Taller de I+D</h3>
             <div id="upgrades-list" style="margin-top:10px;"></div>
         </div>
+    </div>
+
+    <!-- PANTALLA DE SELECCIÓN DE ESTRATEGIA PRE-CARRERA -->
+    <div id="strategy-screen" class="card hidden">
+        <h3>Estrategia de Neumáticos de Salida</h3>
+        <p style="color:#a1a1a6; font-size:0.85rem; margin-top:5px;">Elegí con qué compuesto vas a largar la carrera:</p>
+        
+        <div class="tire-selector">
+            <button id="btn-soft" class="tire-btn tire-soft selected" onclick="elegirGomaInicial('Blando', this)">
+                🔴 Blando (Máxima Velocidad | Desgaste: ~30%/vuelta)
+            </button>
+            <button id="btn-medium" class="tire-btn tire-medium" onclick="elegirGomaInicial('Medio', this)">
+                🟡 Medio (Balanceado | Desgaste: ~15%/vuelta)
+            </button>
+            <button id="btn-hard" class="tire-btn tire-hard" onclick="elegirGomaInicial('Duro', this)">
+                ⚪ Duro (Menor Velocidad | Desgaste: ~8%/vuelta)
+            </button>
+        </div>
+
+        <button class="btn" style="margin-top:15px;" onclick="iniciarGranPremio()">🟢 ¡LARGAR CARRERA!</button>
     </div>
 
     <!-- PANTALLA EN VIVO DE CARRERA -->
@@ -87,17 +157,17 @@
         <div class="dashboard-grid">
             <div class="dash-box">Posición: <b id="live-pos" style="color:#00ff66;">P22</b></div>
             <div class="dash-box">Vuelta: <b id="live-lap">0/10</b></div>
-            <div class="dash-box">Goma: <b id="live-compound">Medio</b> (<span id="live-tires">100%</span>)</div>
+            <div class="dash-box">Goma: <b id="live-compound">Blando</b> (<span id="live-tires">100%</span>)</div>
             <div class="dash-box">Estado: <b id="pit-status">Pista</b></div>
         </div>
 
-        <!-- Estrategia de Neumáticos en Carrera -->
+        <!-- Estrategia para el siguiente Pit Stop -->
         <div style="margin-top:10px;">
-            <p style="font-size:0.8rem; text-align:left;">Estrategia de Pit Stop:</p>
-            <div class="tire-selector">
-                <button class="tire-btn tire-soft" onclick="seleccionarEstrategia('Blando')">Blando (Rápido/Alta Degradación)</button>
-                <button class="tire-btn tire-medium" onclick="seleccionarEstrategia('Medio')">Medio (Balanceado)</button>
-                <button class="tire-btn tire-hard" onclick="seleccionarEstrategia('Duro')">Duro (Consistente/Lento)</button>
+            <p style="font-size:0.8rem; text-align:left;">Cambiar en el próximo Pit Stop a:</p>
+            <div style="display:flex; gap:6px; margin-top:5px;">
+                <button class="tire-btn tire-soft" style="flex:1; padding:6px; text-align:center;" onclick="seleccionarProximoCompuesto('Blando')">Blando</button>
+                <button class="tire-btn tire-medium" style="flex:1; padding:6px; text-align:center;" onclick="seleccionarProximoCompuesto('Medio')">Medio</button>
+                <button class="tire-btn tire-hard" style="flex:1; padding:6px; text-align:center;" onclick="seleccionarProximoCompuesto('Duro')">Duro</button>
             </div>
         </div>
 
@@ -115,18 +185,19 @@
     </div>
 
     <script>
+        // CONFIGURACIÓN DE PARRILLA Y COLORES OFICIALES 2026
         const PARRILLA = {
-            "McLaren": [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}],
-            "Ferrari": [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}],
-            "Mercedes": [{n:"George Russell", f:"🇬🇧"}, {n:"Kimi Antonelli", f:"🇮🇹"}],
-            "Red Bull": [{n:"Max Verstappen", f:"🇳🇱"}, {n:"Isack Hadjar", f:"🇫🇷"}],
-            "Williams": [{n:"Alex Albon", f:"🇹🇭"}, {n:"Carlos Sainz", f:"🇪🇸"}],
-            "Audi": [{n:"Nico Hülkenberg", f:"🇩🇪"}, {n:"Gabriel Bortoleto", f:"🇧🇷"}],
-            "Alpine": [{n:"Pierre Gasly", f:"🇫🇷"}, {n:"Franco Colapinto", f:"🇦🇷"}],
-            "Haas": [{n:"Oliver Bearman", f:"🇬🇧"}, {n:"Esteban Ocon", f:"🇫🇷"}],
-            "Racing Bulls": [{n:"Liam Lawson", f:"🇳🇿"}, {n:"Arvid Lindblad", f:"🇬🇧"}],
-            "Aston Martin": [{n:"Fernando Alonso", f:"🇪🇸"}, {n:"Lance Stroll", f:"🇨🇦"}],
-            "Cadillac": [{n:"Sergio Pérez", f:"🇲🇽"}, {n:"Valtteri Bottas", f:"🇫🇮"}]
+            "McLaren": { color: "#ff8000", pilotos: [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}] },
+            "Ferrari": { color: "#e8002d", pilotos: [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}] },
+            "Mercedes": { color: "#27f4d2", pilotos: [{n:"George Russell", f:"🇬🇧"}, {n:"Kimi Antonelli", f:"🇮🇹"}] },
+            "Red Bull": { color: "#3671c6", pilotos: [{n:"Max Verstappen", f:"🇳🇱"}, {n:"Isack Hadjar", f:"🇫🇷"}] },
+            "Williams": { color: "#64c4ff", pilotos: [{n:"Alex Albon", f:"🇹🇭"}, {n:"Carlos Sainz", f:"🇪🇸"}] },
+            "Audi": { color: "#f50500", pilotos: [{n:"Nico Hülkenberg", f:"🇩🇪"}, {n:"Gabriel Bortoleto", f:"🇧🇷"}] },
+            "Alpine": { color: "#ff87bc", pilotos: [{n:"Pierre Gasly", f:"🇫🇷"}, {n:"Franco Colapinto", f:"🇦🇷"}] },
+            "Haas": { color: "#b6babd", pilotos: [{n:"Oliver Bearman", f:"🇬🇧"}, {n:"Esteban Ocon", f:"🇫🇷"}] },
+            "Racing Bulls": { color: "#6692ff", pilotos: [{n:"Liam Lawson", f:"🇳🇿"}, {n:"Arvid Lindblad", f:"🇬🇧"}] },
+            "Aston Martin": { color: "#229971", pilotos: [{n:"Fernando Alonso", f:"🇪🇸"}, {n:"Lance Stroll", f:"🇨🇦"}] },
+            "Cadillac": { color: "#d4af37", pilotos: [{n:"Sergio Pérez", f:"🇲🇽"}, {n:"Valtteri Bottas", f:"🇫🇮"}] }
         };
 
         const CALENDARIO_2026 = [
@@ -143,30 +214,48 @@
         let miEscuderia = "McLaren", miPiloto = "Lando Norris", rp = 0, fechaCalendario = 0;
         let componentes = { "Alerones": 1, "Motor": 1, "Frenos": 1, "Suspensión": 1, "Neumáticos": 1 };
         let carreraInterval, vuelta = 0, desgaste = 100, enBox = false, miPosicion = 15;
-        let compuestoActual = "Medio", compuestoSiguiente = "Medio";
+        let compuestoInicial = "Blando", compuestoActual = "Blando", compuestoSiguiente = "Blando";
         let rivales = [];
+
+        function iniciarConfiguracion() {
+            document.getElementById("intro-screen").classList.add("hidden");
+            document.getElementById("setup-screen").classList.remove("hidden");
+            init();
+        }
 
         function init() {
             const tDiv = document.getElementById("team-options");
+            tDiv.innerHTML = "";
             for(let team in PARRILLA) {
-                tDiv.innerHTML += `<div class="option-btn" onclick="selTeam('${team}', this)"><b>${team}</b></div>`;
+                let col = PARRILLA[team].color;
+                tDiv.innerHTML += `
+                    <div class="option-btn" onclick="selTeam('${team}', this)" style="border-left: 5px solid ${col};">
+                        <b>${team}</b>
+                        <span class="color-badge" style="background:${col};"></span>
+                    </div>`;
             }
             selTeam("McLaren", tDiv.children[0]);
         }
 
         function selTeam(team, el) {
             miEscuderia = team;
-            document.querySelectorAll("#team-options .option-btn").forEach(b => b.classList.remove("selected"));
-            if(el) el.classList.add("selected");
+            document.querySelectorAll("#team-options .option-btn").forEach(b => {
+                b.classList.remove("selected");
+                b.style.borderColor = "#323b4e";
+            });
+            if(el) {
+                el.classList.add("selected");
+                el.style.borderColor = PARRILLA[team].color;
+            }
 
             const dDiv = document.getElementById("driver-options");
             dDiv.innerHTML = "";
-            PARRILLA[team].forEach((d, i) => {
+            PARRILLA[team].pilotos.forEach((d, i) => {
                 dDiv.innerHTML += `<div class="option-btn ${i===0?'selected':''}" onclick="selDriver('${d.n}', this)">
                     <span class="flag">${d.f}</span> ${d.n}
                 </div>`;
             });
-            miPiloto = PARRILLA[team][0].n;
+            miPiloto = PARRILLA[team].pilotos[0].n;
         }
 
         function selDriver(driver, el) {
@@ -178,7 +267,14 @@
         function confirmarEquipo() {
             document.getElementById("setup-screen").classList.add("hidden");
             document.getElementById("game-screen").classList.remove("hidden");
+            
+            const banner = document.getElementById("team-card-banner");
+            const teamColor = PARRILLA[miEscuderia].color;
+            banner.style.borderLeft = `6px solid ${teamColor}`;
+            
             document.getElementById("team-title").innerText = `${miEscuderia} | ${miPiloto}`;
+            document.getElementById("team-title").style.color = teamColor;
+            
             actualizarCalendarioText();
             renderTaller();
         }
@@ -207,36 +303,67 @@
             if(rp >= costo) { rp -= costo; componentes[c]++; renderTaller(); }
         }
 
-        function seleccionarEstrategia(compuesto) { compuestoSiguiente = compuesto; }
-
-        /* SIMULACIÓN CON TRAZADO REAL SVG Y LOS 22 AUTOS */
-        function iniciarGranPremio() {
+        function mostrarPantallaEstrategia() {
             document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("strategy-screen").classList.remove("hidden");
+        }
+
+        function elegirGomaInicial(compuesto, el) {
+            compuestoInicial = compuesto;
+            document.querySelectorAll(".tire-selector .tire-btn").forEach(b => b.classList.remove("selected"));
+            el.classList.add("selected");
+        }
+
+        function seleccionarProximoCompuesto(compuesto) { compuestoSiguiente = compuesto; }
+
+        /* SIMULACIÓN CON AUTOS CON LOS COLORES OFICIALES DE ESCUDERÍAS */
+        function iniciarGranPremio() {
+            document.getElementById("strategy-screen").classList.add("hidden");
             document.getElementById("race-screen").classList.remove("hidden");
             document.getElementById("gp-title").innerText = CALENDARIO_2026[fechaCalendario % CALENDARIO_2026.length];
             
             vuelta = 0; desgaste = 100; enBox = false; miPosicion = 15;
-            compuestoActual = "Medio"; compuestoSiguiente = "Medio";
+            compuestoActual = compuestoInicial;
+            compuestoSiguiente = compuestoInicial;
+            document.getElementById("live-compound").innerText = compuestoActual;
 
             const path = document.getElementById("track-path");
             const pathLength = path.getTotalLength();
             
-            // Generar los 21 rivales restantes con posiciones iniciales aleatorias
+            // Asignar el color oficial a tu auto
+            const userColor = PARRILLA[miEscuderia].color;
+            const userDot = document.getElementById("user-dot");
+            userDot.style.background = userColor;
+
+            // Generar la lista plana de rivales con sus respectivos colores de escudería
             const rivalsContainer = document.getElementById("rivals-container");
             rivalsContainer.innerHTML = "";
             rivales = [];
-            for(let i=0; i<21; i++) {
-                let div = document.createElement("div");
-                div.className = "car-dot rival-dot";
-                rivalsContainer.appendChild(div);
-                rivales.push({ el: div, dist: Math.random() * pathLength, speed: 1.5 + Math.random() * 0.5 });
+
+            for(let team in PARRILLA) {
+                PARRILLA[team].pilotos.forEach(piloto => {
+                    if(piloto.n !== miPiloto) {
+                        let div = document.createElement("div");
+                        div.className = "car-dot";
+                        div.style.background = PARRILLA[team].color;
+                        div.style.opacity = "0.85";
+                        rivalsContainer.appendChild(div);
+                        rivales.push({ 
+                            nombre: piloto.n,
+                            escuderia: team,
+                            el: div, 
+                            dist: Math.random() * pathLength, 
+                            speed: 1.4 + Math.random() * 0.4 
+                        });
+                    }
+                });
             }
 
             let userDist = 0;
 
             carreraInterval = setInterval(() => {
                 if(enBox) {
-                    desgaste = Math.min(100, desgaste + 30);
+                    desgaste = Math.min(100, desgaste + 35);
                     document.getElementById("pit-status").innerText = "🔧 En Pit Stop...";
                     if(desgaste >= 100) {
                         enBox = false;
@@ -248,28 +375,28 @@
 
                 document.getElementById("pit-status").innerText = "Pista";
                 
-                // Multiplicadores según compuesto
-                let multVel = 1.0, multDeg = 1.0;
-                if(compuestoActual === "Blando") { multVel = 1.25; multDeg = 1.8; }
-                if(compuestoActual === "Medio") { multVel = 1.0; multDeg = 1.0; }
-                if(compuestoActual === "Duro") { multVel = 0.85; multDeg = 0.5; }
+                let multVel = 1.0, degBaseVuelta = 30;
+                if(compuestoActual === "Blando") { multVel = 1.3; degBaseVuelta = 30; }
+                if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 15; }
+                if(compuestoActual === "Duro") { multVel = 0.85; degBaseVuelta = 8; }
 
-                // Eficiencia del auto sumando componentes (incluyendo Neumáticos)
                 let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
-                let desgasteFactor = Math.max(0.2, desgaste / 100);
+                let desgasteFactor = Math.max(0.15, desgaste / 100);
                 let userSpeed = (1.2 + (rendTotal * 0.08)) * multVel * desgasteFactor;
 
+                let deltaVuelta = userSpeed / pathLength;
                 userDist = (userDist + userSpeed) % pathLength;
-                vuelta += userSpeed / pathLength;
-                desgaste -= (0.4 * multDeg) / (componentes["Neumáticos"] * 0.5);
+                vuelta += deltaVuelta;
 
-                // Renderizar Auto del Usuario en el Trazado
+                let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.08);
+                desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.4, factorMejoraNeumatico);
+
+                // Posicionar Auto del Usuario
                 let point = path.getPointAtLength(userDist);
-                let userDot = document.getElementById("user-dot");
                 userDot.style.left = `${(point.x / 200) * 240}px`;
                 userDot.style.top = `${(point.y / 150) * 180}px`;
 
-                // Renderizar Rivales
+                // Posicionar Rivales
                 let rivalesAdelante = 0;
                 rivales.forEach(r => {
                     r.dist = (r.dist + r.speed) % pathLength;
@@ -304,7 +431,7 @@
             tbody.innerHTML = "";
             let pos = 1;
             for(let team in PARRILLA) {
-                PARRILLA[team].forEach(d => {
+                PARRILLA[team].pilotos.forEach(d => {
                     let esUser = (d.n === miPiloto);
                     let pPos = esUser ? miPosicion : (pos === miPosicion ? pos + 1 : pos);
                     tbody.innerHTML += `<tr class="${esUser?'user-row':''}">
@@ -321,8 +448,6 @@
             actualizarCalendarioText();
             renderTaller();
         }
-
-        init();
     </script>
 </body>
-    </html>
+</html>
