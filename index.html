@@ -242,9 +242,8 @@
                 <button id="modal-repair-btn" class="btn" style="background:#00c853;" onclick="repararComponente()">Reparar</button>
             </div>
         </div>
-    </div>
-    
-    <script>
+            </div>
+            <script>
         const PARRILLA = {
             "McLaren": { color: "#ff8000", pilotos: [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}] },
             "Ferrari": { color: "#e8002d", pilotos: [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}] },
@@ -627,5 +626,57 @@
                 todosLosAutos.sort((a, b) => b.distTotal - a.distTotal);
                 miPosicion = todosLosAutos.findIndex(a => a.esUser) + 1;
 
-                document.getElementById("live-p
-        
+                document.getElementById("live-pos").innerText = `P${miPosicion}`;
+                document.getElementById("live-lap").innerText = `${Math.floor(vuelta)}/10`;
+                document.getElementById("live-tires").innerText = `${Math.max(0, Math.floor(desgaste))}%`;
+
+                if(vuelta >= 10) finalizarCarrera();
+            }, 60);
+        }
+
+        function aplicarDesgasteSegunPosicion(pos) {
+            let incremento = 5;
+            if (pos <= 5) incremento = 20;
+            else if (pos <= 10) incremento = 15;
+            else if (pos <= 15) incremento = 10;
+            
+            for (let c in componentes) {
+                componentes[c].desgaste = Math.min(100, componentes[c].desgaste + incremento);
+            }
+        }
+
+        function finalizarCarrera() {
+            clearInterval(carreraInterval);
+            document.getElementById("race-screen").classList.add("hidden");
+            document.getElementById("results-screen").classList.remove("hidden");
+
+            aplicarDesgasteSegunPosicion(miPosicion);
+
+            let ganados = (23 - miPosicion) * 25;
+            rp += ganados;
+            fechaCalendario++;
+
+            const tbody = document.getElementById("results-body");
+            tbody.innerHTML = "";
+            let pos = 1;
+            for(let team in PARRILLA) {
+                PARRILLA[team].pilotos.forEach(d => {
+                    let esUser = (d.n === miPiloto);
+                    let pPos = esUser ? miPosicion : (pos === miPosicion ? pos + 1 : pos);
+                    tbody.innerHTML += `<tr class="${esUser?'user-row':''}">
+                        <td>P${pPos}</td><td>${d.f} ${d.n}</td><td>${team}</td><td>+${Math.max(0, 25-pPos*2)}</td>
+                    </tr>`;
+                    pos++;
+                });
+            }
+        }
+
+        function volverAlMuro() {
+            document.getElementById("results-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            actualizarCalendarioText();
+            renderTaller();
+        }
+    </script>
+</body>
+</html>
