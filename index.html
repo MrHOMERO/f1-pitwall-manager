@@ -143,7 +143,7 @@
         <div style="background:#1e2430; padding:10px; border-radius:8px; margin:10px 0; text-align:left; font-size:0.85rem;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span>🌧️ Prob. Lluvia: <b id="rain-prob" style="color:#00ff66;">0%</b></span>
-                <span>Estado: <b id="weather-status">Seco</b></span>
+                <span>Estado: <b id="weather-status">☀️ Seco</b></span>
             </div>
             <div style="margin-top:6px; font-size:0.8rem; color:#a1a1a6;">
                 Trazado técnico de alta velocidad. Estrategia clave en degradación.
@@ -191,7 +191,7 @@
             <div class="dash-box">Posición: <b id="live-pos" style="color:#00ff66;">P15</b></div>
             <div class="dash-box">Vuelta: <b id="live-lap">0/10</b></div>
             <div class="dash-box">Goma: <b id="live-compound">Blando</b> (<span id="live-tires">100%</span>)</div>
-            <div class="dash-box">Estado: <b id="pit-status">Pista</b></div>
+            <div class="dash-box">Clima / Estado: <b id="pit-status">☀️ Seco</b></div>
         </div>
 
         <div style="margin-top:10px;">
@@ -242,7 +242,8 @@
                 <button id="modal-repair-btn" class="btn" style="background:#00c853;" onclick="repararComponente()">Reparar</button>
             </div>
         </div>
-        <script>
+    </div>
+    <script>
         const PARRILLA = {
             "McLaren": { color: "#ff8000", pilotos: [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}] },
             "Ferrari": { color: "#e8002d", pilotos: [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}] },
@@ -535,7 +536,7 @@
                 if(enBox) {
                     tiempoEnPitUser += 60;
                     let segs = Math.max(0, ((5000 - tiempoEnPitUser) / 1000)).toFixed(1);
-                    document.getElementById("pit-status").innerText = `🔧 Box: ${segs}s`;
+                    document.getElementById("pit-status").innerText = `🔧 Box (${segs}s)`;
                     document.getElementById("pit-btn").innerText = `⏳ EN BOXES (${segs}s)`;
                     document.getElementById("pit-btn").style.background = "#555";
                     
@@ -546,14 +547,28 @@
                         document.getElementById("live-compound").innerText = compuestoActual;
                         document.getElementById("pit-btn").innerText = "⚠️ ¡ENTRAR A BOXES!";
                         document.getElementById("pit-btn").style.background = "#e5a900";
-                        document.getElementById("pit-status").innerText = "Pista";
                     }
                 } else {
+                    document.getElementById("pit-status").innerText = climaCarrera === "Lluvia" ? "🌧️ Lluvia" : "☀️ Seco";
+
                     let multVel = 1.0, degBaseVuelta = 20;
+                    let nvlGomas = componentes["Neumáticos"].lvl;
+
                     if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
                     if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
                     if(compuestoActual === "Duro") { multVel = 0.88; degBaseVuelta = 6; }
-                    if(compuestoActual === "Lluvia") { multVel = climaCarrera === "Lluvia" ? 1.1 : 0.6; degBaseVuelta = 10; }
+                    
+                    if(compuestoActual === "Lluvia") { 
+                        let rendimientoExtra = 1 + ((nvlGomas - 1) * 0.05); // +5% por nivel
+                        let boostVelocidad = 1 + ((nvlGomas - 1) * 0.02); // +2% por nivel
+                        
+                        multVel = (climaCarrera === "Lluvia" ? 1.1 : 0.6) * rendimientoExtra * boostVelocidad; 
+                        degBaseVuelta = 10; 
+                    }
+
+                    if(climaCarrera === "Lluvia" && compuestoActual !== "Lluvia") {
+                        degBaseVuelta += 5; // +5% desgaste en piso mojado sin gomas de lluvia
+                    }
 
                     let penalizacionDesgasteComponentes = Object.values(componentes).reduce((acc, c) => acc + (c.desgaste * 0.003), 0);
                     let rendTotal = Object.values(componentes).reduce((a,b)=>a+b.lvl, 0);
@@ -566,7 +581,7 @@
                     let deltaVuelta = userSpeed / pathLength;
                     vuelta += deltaVuelta;
 
-                    let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"].lvl - 1) * 0.05);
+                    let factorMejoraNeumatico = 1 - ((nvlGomas - 1) * 0.05);
                     desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.5, factorMejoraNeumatico);
 
                     let point = path.getPointAtLength(userDist);
@@ -611,57 +626,5 @@
                 todosLosAutos.sort((a, b) => b.distTotal - a.distTotal);
                 miPosicion = todosLosAutos.findIndex(a => a.esUser) + 1;
 
-                document.getElementById("live-pos").innerText = `P${miPosicion}`;
-                document.getElementById("live-lap").innerText = `${Math.floor(vuelta)}/10`;
-                document.getElementById("live-tires").innerText = `${Math.max(0, Math.floor(desgaste))}%`;
-
-                if(vuelta >= 10) finalizarCarrera();
-            }, 60);
-        }
-
-        function aplicarDesgasteSegunPosicion(pos) {
-            let incremento = 5;
-            if (pos <= 5) incremento = 20;
-            else if (pos <= 10) incremento = 15;
-            else if (pos <= 15) incremento = 10;
-            
-            for (let c in componentes) {
-                componentes[c].desgaste = Math.min(100, componentes[c].desgaste + incremento);
-            }
-        }
-
-        function finalizarCarrera() {
-            clearInterval(carreraInterval);
-            document.getElementById("race-screen").classList.add("hidden");
-            document.getElementById("results-screen").classList.remove("hidden");
-
-            aplicarDesgasteSegunPosicion(miPosicion);
-            
-            let ganados = (23 - miPosicion) * 25;
-            rp += ganados;
-            fechaCalendario++;
-
-            const tbody = document.getElementById("results-body");
-            tbody.innerHTML = "";
-            let pos = 1;
-            for(let team in PARRILLA) {
-                PARRILLA[team].pilotos.forEach(d => {
-                    let esUser = (d.n === miPiloto);
-                    let pPos = esUser ? miPosicion : (pos === miPosicion ? pos + 1 : pos);
-                    tbody.innerHTML += `<tr class="${esUser?'user-row':''}">
-                        <td>P${pPos}</td><td>${d.f} ${d.n}</td><td>${team}</td><td>+${Math.max(0, 25-pPos*2)}</td>
-                    </tr>`;
-                    pos++;
-                });
-            }
-            }
-            
-            function volverAlMuro() {
-            document.getElementById("results-screen").classList.add("hidden");
-            document.getElementById("game-screen").classList.remove("hidden");
-            actualizarCalendarioText();
-            renderTaller();
-        }
-    </script>
-</body>
-</html>
+                document.getElementById("live-p
+        
