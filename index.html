@@ -180,9 +180,8 @@
             <tbody id="results-body"></tbody>
         </table>
         <button class="btn" onclick="volverAlMuro()">Siguiente Gran Premio</button>
-    </div><script>
-        
-   <script>
+    </div>
+    <script>
         const PARRILLA = {
             "McLaren": { color: "#ff8000", pilotos: [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}] },
             "Ferrari": { color: "#e8002d", pilotos: [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}] },
@@ -415,7 +414,6 @@
             let userTotalDist = 0;
 
             carreraInterval = setInterval(() => {
-                // --- MANEJO DE PIT STOP USUARIO ---
                 if(enBox) {
                     tiempoEnPitUser += 60;
                     let segs = Math.max(0, ((5000 - tiempoEnPitUser) / 1000)).toFixed(1);
@@ -433,7 +431,6 @@
                         document.getElementById("pit-status").innerText = "Pista";
                     }
                 } else {
-                    // AVANCE USUARIO
                     let multVel = 1.0, degBaseVuelta = 20;
                     if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
                     if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
@@ -457,9 +454,7 @@
                     userDot.style.top = `${(point.y / 150) * 180}px`;
                 }
 
-                // --- MANEJO Y AVANCE RIVALES ---
                 rivales.forEach(r => {
-                    // Si el rival desgasta goma por debajo del 30%, entra a boxes aleatoriamente
                     if(!r.enBox && r.desgaste < 30 && Math.random() < 0.03) {
                         r.enBox = true;
                         r.tiempoEnPit = 0;
@@ -467,7 +462,6 @@
 
                     if(r.enBox) {
                         r.tiempoEnPit += 60;
-                        // Efecto de parpadeo (titilado) durante el Pit Stop
                         r.el.style.opacity = (Math.floor(r.tiempoEnPit / 250) % 2 === 0) ? "0.2" : "1.0";
                         
                         if(r.tiempoEnPit >= 5000) {
@@ -490,7 +484,6 @@
                     }
                 });
 
-                // TABLA Y POSICIONES
                 let todosLosAutos = [
                     { nombre: miPiloto, escuderia: miEscuderia, distTotal: userTotalDist, esUser: true, neum: compuestoActual, deg: Math.max(0, Math.floor(desgaste)) },
                     ...rivales.map(r => ({ nombre: r.nombre, escuderia: r.escuderia, distTotal: r.totalDist, esUser: false, neum: r.compuesto, deg: Math.floor(r.desgaste) }))
@@ -567,4 +560,12 @@
             }
         }
 
-        function volve
+        function volverAlMuro() {
+            document.getElementById("results-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            actualizarCalendarioText();
+            renderTaller();
+        }
+    </script>
+</body>
+</html>
