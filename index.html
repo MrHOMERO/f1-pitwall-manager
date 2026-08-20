@@ -14,7 +14,6 @@
         .btn-pit { background: #e5a900; color: #000; }
         .hidden { display: none !important; }
         
-        /* PANTALLA INTRO CINEMÁTICA */
         #intro-screen {
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             height: 90vh; perspective: 1000px;
@@ -44,11 +43,8 @@
             0% { transform: translateY(150px) scale(0.5); opacity: 0; }
             100% { transform: translateY(0) scale(1); opacity: 1; }
         }
-        @keyframes fadeIn {
-            100% { opacity: 1; }
-        }
+        @keyframes fadeIn { 100% { opacity: 1; } }
 
-        /* GRID Y BOTONES DE SELECCIÓN DE EQUIPOS CON COLORES OFICIALES */
         .grid-select { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; max-height: 220px; overflow-y: auto; }
         .option-btn { 
             background: #202634; border: 2px solid #323b4e; color: #fff; padding: 10px; 
@@ -56,13 +52,10 @@
             align-items: center; justify-content: space-between; font-size: 0.85rem;
             transition: all 0.2s ease;
         }
-        .option-btn.selected { 
-            background: #2d3548; font-weight: bold; box-shadow: 0 0 10px rgba(255,255,255,0.2); 
-        }
+        .option-btn.selected { background: #2d3548; font-weight: bold; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
         .color-badge { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid #fff; }
         .flag { font-size: 1.2rem; }
 
-        /* CIRCUITO SVG Y AUTOS COLORIDOS */
         #track-container { position: relative; width: 240px; height: 180px; margin: 10px auto; background: #1a1f2c; border-radius: 12px; border: 1px solid #2d3548; }
         svg { width: 100%; height: 100%; }
         .car-dot { width: 9px; height: 9px; border-radius: 50%; position: absolute; transform: translate(-50%, -50%); transition: all 0.05s linear; border: 1px solid #000; }
@@ -86,7 +79,6 @@
 </head>
 <body>
 
-    <!-- PANTALLA INTRODUCCION -->
     <div id="intro-screen">
         <div class="intro-title-top">F1 PITWALL</div>
         <div class="intro-title-bottom">MANAGER 2026</div>
@@ -94,7 +86,6 @@
         <button class="btn btn-start" onclick="iniciarConfiguracion()">COMENZAR JUEGO</button>
     </div>
 
-    <!-- PANTALLA SELECCIÓN DE EQUIPO -->
     <div id="setup-screen" class="card hidden">
         <h3>Elegí tu Escudería</h3>
         <div id="team-options" class="grid-select"></div>
@@ -105,7 +96,6 @@
         <button class="btn" style="margin-top:15px;" onclick="confirmarEquipo()">Tomar el Mando</button>
     </div>
 
-    <!-- PANTALLA PRINCIPAL / DASHBOARD -->
     <div id="game-screen" class="hidden">
         <div class="card" id="team-card-banner">
             <h2 id="team-title" style="color:#fff;"></h2>
@@ -120,35 +110,32 @@
         </div>
     </div>
 
-    <!-- PANTALLA DE SELECCIÓN DE ESTRATEGIA PRE-CARRERA -->
     <div id="strategy-screen" class="card hidden">
         <h3>Estrategia de Neumáticos de Salida</h3>
         <p style="color:#a1a1a6; font-size:0.85rem; margin-top:5px;">Elegí con qué compuesto vas a largar la carrera:</p>
         
         <div class="tire-selector">
             <button id="btn-soft" class="tire-btn tire-soft selected" onclick="elegirGomaInicial('Blando', this)">
-                🔴 Blando (Máxima Velocidad | Desgaste: ~30%/vuelta)
+                🔴 Blando (Rápido | Desgaste: ~20%/vuelta)
             </button>
             <button id="btn-medium" class="tire-btn tire-medium" onclick="elegirGomaInicial('Medio', this)">
-                🟡 Medio (Balanceado | Desgaste: ~15%/vuelta)
+                🟡 Medio (Equilibrado | Desgaste: ~12%/vuelta)
             </button>
             <button id="btn-hard" class="tire-btn tire-hard" onclick="elegirGomaInicial('Duro', this)">
-                ⚪ Duro (Menor Velocidad | Desgaste: ~8%/vuelta)
+                ⚪ Duro (Más Lento | Desgaste: ~6%/vuelta)
             </button>
         </div>
 
         <button class="btn" style="margin-top:15px;" onclick="iniciarGranPremio()">🟢 ¡LARGAR CARRERA!</button>
     </div>
 
-    <!-- PANTALLA EN VIVO DE CARRERA -->
     <div id="race-screen" class="card hidden">
         <h3 id="gp-title">Gran Premio</h3>
         
-        <!-- Circuito SVG -->
         <div id="track-container">
             <svg viewBox="0 0 200 150">
-                <path id="track-path" d="M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z" fill="none" stroke="#2d3548" stroke-width="12" stroke-linejoin="round"/>
-                <path d="M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z" fill="none" stroke="#4a5568" stroke-width="2" stroke-dasharray="4,4"/>
+                <path id="track-path" d="" fill="none" stroke="#2d3548" stroke-width="12" stroke-linejoin="round"/>
+                <path id="track-inner-path" d="" fill="none" stroke="#4a5568" stroke-width="2" stroke-dasharray="4,4"/>
             </svg>
             <div id="user-dot" class="car-dot"></div>
             <div id="rivals-container"></div>
@@ -161,7 +148,6 @@
             <div class="dash-box">Estado: <b id="pit-status">Pista</b></div>
         </div>
 
-        <!-- Estrategia para el siguiente Pit Stop -->
         <div style="margin-top:10px;">
             <p style="font-size:0.8rem; text-align:left;">Cambiar en el próximo Pit Stop a:</p>
             <div style="display:flex; gap:6px; margin-top:5px;">
@@ -174,7 +160,6 @@
         <button id="pit-btn" class="btn btn-pit" onclick="ordenarPitStop()">⚠️ ¡ENTRAR A BOXES!</button>
     </div>
 
-    <!-- RESULTADOS CARRERA -->
     <div id="results-screen" class="card hidden">
         <h3>Clasificación Final</h3>
         <table>
@@ -185,7 +170,6 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE PARRILLA Y COLORES OFICIALES 2026
         const PARRILLA = {
             "McLaren": { color: "#ff8000", pilotos: [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}] },
             "Ferrari": { color: "#e8002d", pilotos: [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}] },
@@ -209,6 +193,16 @@
             "GP de Italia (Monza)", "GP de Azerbaiyán (Bakú)", "GP de Singapur",
             "GP de Estados Unidos (Austin)", "GP de México", "GP de Brasil (Interlagos)",
             "GP de Las Vegas", "GP de Catar (Lusail)", "GP de Abu Dhabi (Yas Marina)"
+        ];
+
+        // FORMAS SVG DE CIRCUITOS DISTINTOS
+        const TRAZADOS_CIRCUITOS = [
+            "M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z", // Estándar / Melbourne
+            "M 20,40 L 180,40 L 160,80 L 180,120 L 100,130 L 20,100 L 40,70 Z", // Ovalóide / Monza
+            "M 30,30 L 170,30 L 150,70 L 180,90 L 120,130 L 70,100 L 40,120 L 20,70 Z", // Técnico / Silverstone
+            "M 40,20 L 160,20 C 190,40 190,80 160,90 L 120,90 L 120,130 L 80,130 L 80,90 L 40,90 Z", // Callejero / Mónaco
+            "M 30,50 L 80,20 L 150,30 L 180,70 L 140,120 L 80,100 L 50,130 L 20,90 Z", // Rápido / Spa
+            "M 50,30 L 140,20 L 170,60 L 130,80 L 160,120 L 90,130 L 40,90 L 70,60 Z"  // Ratonero / Hungría
         ];
 
         let miEscuderia = "McLaren", miPiloto = "Lando Norris", rp = 0, fechaCalendario = 0;
@@ -290,7 +284,7 @@
             for (let c in componentes) {
                 let lvl = componentes[c], costo = lvl * 50;
                 container.innerHTML += `
-                    <div style="display:flex; justify-between; align-items:center; margin-bottom:8px; background:#1e2430; padding:8px; border-radius:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#1e2430; padding:8px; border-radius:6px;">
                         <span style="font-size:0.85rem;"><b>${c}</b> (Nvl ${lvl})</span>
                         <button class="btn" style="width:auto; padding:6px 12px; margin:0; font-size:0.8rem;" ${rp < costo ? 'disabled':''} onclick="mejorar('${c}', ${costo})">
                             Mejorar (+${costo} RP)
@@ -321,6 +315,11 @@
             document.getElementById("race-screen").classList.remove("hidden");
             document.getElementById("gp-title").innerText = CALENDARIO_2026[fechaCalendario % CALENDARIO_2026.length];
             
+            // CAMBIAR TRAZADO DEL CIRCUITO SEGÚN LA FECHA
+            const trazadoPath = TRAZADOS_CIRCUITOS[fechaCalendario % TRAZADOS_CIRCUITOS.length];
+            document.getElementById("track-path").setAttribute("d", trazadoPath);
+            document.getElementById("track-inner-path").setAttribute("d", trazadoPath);
+
             vuelta = 0; desgaste = 100; enBox = false; miPosicion = 15;
             compuestoActual = compuestoInicial;
             compuestoSiguiente = compuestoInicial;
@@ -339,6 +338,9 @@
             const compuestosPosibles = ["Blando", "Medio", "Duro"];
             rivales = [];
 
+            // BALANCE DE VELOCIDAD BASE PARA IA COMPRENSIVA
+            let baseVelocidadGlobal = 1.6;
+
             for(let team in PARRILLA) {
                 PARRILLA[team].pilotos.forEach(piloto => {
                     if(piloto.n !== miPiloto) {
@@ -349,23 +351,25 @@
                         rivalsContainer.appendChild(div);
                         
                         let compRival = compuestosPosibles[Math.floor(Math.random() * 3)];
-                        let initDist = Math.random() * pathLength;
+                        let initDist = Math.random() * (pathLength * 0.15); // Largada agrupada
+                        
+                        // IA mejor nivelada
+                        let variacionRival = (Math.random() * 0.2) - 0.1;
                         rivales.push({ 
                             nombre: piloto.n,
                             escuderia: team,
                             el: div, 
                             dist: initDist,
                             totalDist: initDist,
-                            baseSpeed: 1.4 + Math.random() * 0.35,
+                            baseSpeed: baseVelocidadGlobal + variacionRival,
                             desgaste: 100,
                             compuesto: compRival,
-                            degFactor: compRival === "Blando" ? 1.8 : (compRival === "Medio" ? 1.0 : 0.6)
+                            degFactor: compRival === "Blando" ? 0.8 : (compRival === "Medio" ? 0.5 : 0.25)
                         });
                     }
                 });
             }
 
-            let userDist = 0;
             let userTotalDist = 0;
 
             carreraInterval = setInterval(() => {
@@ -382,31 +386,32 @@
 
                 document.getElementById("pit-status").innerText = "Pista";
                 
-                let multVel = 1.0, degBaseVuelta = 30;
-                if(compuestoActual === "Blando") { multVel = 1.3; degBaseVuelta = 30; }
-                if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 15; }
-                if(compuestoActual === "Duro") { multVel = 0.85; degBaseVuelta = 8; }
+                // MULTIPLICADORES DE NEUMÁTICOS REBALANCEADOS
+                let multVel = 1.0, degBaseVuelta = 20;
+                if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
+                if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
+                if(compuestoActual === "Duro") { multVel = 0.88; degBaseVuelta = 6; }
 
                 let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
-                let desgasteFactor = Math.max(0.15, desgaste / 100);
-                let userSpeed = (1.2 + (rendTotal * 0.08)) * multVel * desgasteFactor;
+                let desgasteFactor = Math.max(0.4, desgaste / 100);
+                
+                // Velocidad equilibrada respecto a los rivales
+                let userSpeed = (1.45 + (rendTotal * 0.04)) * multVel * desgasteFactor;
 
                 let deltaVuelta = userSpeed / pathLength;
                 userTotalDist += userSpeed;
-                userDist = userTotalDist % pathLength;
+                let userDist = userTotalDist % pathLength;
                 vuelta += deltaVuelta;
 
-                let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.08);
-                desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.4, factorMejoraNeumatico);
+                let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.05);
+                desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.5, factorMejoraNeumatico);
 
-                // Posicionar Auto del Usuario
                 let point = path.getPointAtLength(userDist);
                 userDot.style.left = `${(point.x / 200) * 240}px`;
                 userDot.style.top = `${(point.y / 150) * 180}px`;
 
-                // Actualizar Rivales con su propio Desgaste de Neumáticos
                 rivales.forEach(r => {
-                    r.desgaste = Math.max(10, r.desgaste - (0.15 * r.degFactor));
+                    r.desgaste = Math.max(20, r.desgaste - (0.05 * r.degFactor));
                     let speedRivalConDesgaste = r.baseSpeed * (r.desgaste / 100);
                     
                     r.totalDist += speedRivalConDesgaste;
@@ -417,7 +422,6 @@
                     r.el.style.top = `${(rPoint.y / 150) * 180}px`;
                 });
 
-                // Ordenar posiciones según la distancia TOTAL acumulada
                 let todosLosAutos = [
                     { nombre: miPiloto, escuderia: miEscuderia, distTotal: userTotalDist, esUser: true, neum: compuestoActual, deg: Math.max(0, Math.floor(desgaste)) },
                     ...rivales.map(r => ({ nombre: r.nombre, escuderia: r.escuderia, distTotal: r.totalDist, esUser: false, neum: r.compuesto, deg: Math.floor(r.desgaste) }))
@@ -428,12 +432,10 @@
                 let userIndex = todosLosAutos.findIndex(a => a.esUser);
                 miPosicion = userIndex + 1;
 
-                // Render de Telemetría e Indicadores
                 document.getElementById("live-pos").innerText = `P${miPosicion}`;
                 document.getElementById("live-lap").innerText = `${Math.floor(vuelta)}/10`;
                 document.getElementById("live-tires").innerText = `${Math.max(0, Math.floor(desgaste))}%`;
 
-                // Render del Cuadro del Tracker de Posiciones en Pista
                 let autoAdelante = todosLosAutos[userIndex - 1];
                 let autoAtras = todosLosAutos[userIndex + 1];
 
