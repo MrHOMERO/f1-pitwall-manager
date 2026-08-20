@@ -221,6 +221,7 @@
         let carreraInterval, vuelta = 0, desgaste = 100, enBox = false, miPosicion = 15;
         let compuestoInicial = "Blando", compuestoActual = "Blando", compuestoSiguiente = "Blando";
         let rivales = [];
+        let tiempoEnPitUser = 0;
 
         function iniciarConfiguracion() {
             const music = document.getElementById("bg-music");
@@ -344,6 +345,13 @@
 
         function seleccionarProximoCompuesto(compuesto) { compuestoSiguiente = compuesto; }
 
+        function ordenarPitStop() { 
+            if(!enBox) { 
+                enBox = true;
+                tiempoEnPitUser = 0;
+            } 
+        }
+
         function iniciarGranPremio() {
             document.getElementById("strategy-screen").classList.add("hidden");
             document.getElementById("race-screen").classList.remove("hidden");
@@ -372,8 +380,6 @@
             rivales = [];
 
             let baseVelocidadGlobal = 1.6;
-            let solicitadoPit = false;
-            let tiempoEnPit = 0;
 
             for(let team in PARRILLA) {
                 PARRILLA[team].pilotos.forEach(piloto => {
@@ -386,8 +392,8 @@
                         
                         let compRival = compuestosPosibles[Math.floor(Math.random() * 3)];
                         let initDist = Math.random() * (pathLength * 0.15);
-                        
                         let variacionRival = (Math.random() * 0.2) - 0.1;
+
                         rivales.push({ 
                             nombre: piloto.n,
                             escuderia: team,
@@ -397,7 +403,9 @@
                             baseSpeed: baseVelocidadGlobal + variacionRival,
                             desgaste: 100,
                             compuesto: compRival,
-                            degFactor: compRival === "Blando" ? 0.8 : (compRival === "Medio" ? 0.5 : 0.25)
+                            degFactor: compRival === "Blando" ? 0.8 : (compRival === "Medio" ? 0.5 : 0.25),
+                            enBox: false,
+                            tiempoEnPit: 0
                         });
                     }
                 });
@@ -406,71 +414,82 @@
             let userTotalDist = 0;
 
             carreraInterval = setInterval(() => {
+                // --- MANEJO DE PIT STOP USUARIO ---
                 if(enBox) {
-                    tiempoEnPit += 60;
-                    let segundosRestantes = Math.max(0, ((5000 - tiempoEnPit) / 1000).toFixed(1));
-                    document.getElementById("pit-status").innerText = `🔧 Pit Stop: ${segundosRestantes}s`;
+                    tiempoEnPitUser += 60;
+                    let segs = Math.max(0, ((5000 - tiempoEnPitUser) / 1000)).toFixed(1);
+                    document.getElementById("pit-status").innerText = `🔧 Box: ${segs}s`;
+                    document.getElementById("pit-btn").innerText = `⏳ PARADO EN BOXES (${segs}s)`;
+                    document.getElementById("pit-btn").style.background = "#555";
                     
-                    if(tiempoEnPit >= 5000) {
+                    if(tiempoEnPitUser >= 5000) {
                         enBox = false;
-                        solicitadoPit = false;
                         desgaste = 100;
                         compuestoActual = compuestoSiguiente;
                         document.getElementById("live-compound").innerText = compuestoActual;
                         document.getElementById("pit-btn").innerText = "⚠️ ¡ENTRAR A BOXES!";
                         document.getElementById("pit-btn").style.background = "#e5a900";
+                        document.getElementById("pit-status").innerText = "Pista";
                     }
-                    return;
-                }
-
-                if(solicitadoPit) {
-                    document.getElementById("pit-status").innerText = "⏱️ Entrada en esta vuelta";
                 } else {
-                    document.getElementById("pit-status").innerText = "Pista";
+                    // AVANCE USUARIO
+                    let multVel = 1.0, degBaseVuelta = 20;
+                    if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
+                    if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
+                    if(compuestoActual === "Duro") { multVel = 0.88; degBaseVuelta = 6; }
+
+                    let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
+                    let desgasteFactor = Math.max(0.4, desgaste / 100);
+                    let userSpeed = (1.45 + (rendTotal * 0.04)) * multVel * desgasteFactor;
+
+                    userTotalDist += userSpeed;
+                    let userDist = userTotalDist % pathLength;
+
+                    let deltaVuelta = userSpeed / pathLength;
+                    vuelta += deltaVuelta;
+
+                    let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.05);
+                    desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.5, factorMejoraNeumatico);
+
+                    let point = path.getPointAtLength(userDist);
+                    userDot.style.left = `${(point.x / 200) * 240}px`;
+                    userDot.style.top = `${(point.y / 150) * 180}px`;
                 }
 
-                let multVel = 1.0, degBaseVuelta = 20;
-                if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
-                if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
-                if(compuestoActual === "Duro") { multVel = 0.88; degBaseVuelta = 6; }
-
-                let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
-                let desgasteFactor = Math.max(0.4, desgaste / 100);
-                
-                let userSpeed = (1.45 + (rendTotal * 0.04)) * multVel * desgasteFactor;
-
-                let prevDist = userTotalDist % pathLength;
-                userTotalDist += userSpeed;
-                let userDist = userTotalDist % pathLength;
-                
-                if(solicitadoPit && userDist < prevDist) {
-                    enBox = true;
-                    tiempoEnPit = 0;
-                    return;
-                }
-
-                let deltaVuelta = userSpeed / pathLength;
-                vuelta += deltaVuelta;
-
-                let factorMejoraNeumatico = 1 - ((componentes["Neumáticos"] - 1) * 0.05);
-                desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.5, factorMejoraNeumatico);
-
-                let point = path.getPointAtLength(userDist);
-                userDot.style.left = `${(point.x / 200) * 240}px`;
-                userDot.style.top = `${(point.y / 150) * 180}px`;
-
+                // --- MANEJO Y AVANCE RIVALES ---
                 rivales.forEach(r => {
-                    r.desgaste = Math.max(20, r.desgaste - (0.05 * r.degFactor));
-                    let speedRivalConDesgaste = r.baseSpeed * (r.desgaste / 100);
-                    
-                    r.totalDist += speedRivalConDesgaste;
-                    r.dist = r.totalDist % pathLength;
+                    // Si el rival desgasta goma por debajo del 30%, entra a boxes aleatoriamente
+                    if(!r.enBox && r.desgaste < 30 && Math.random() < 0.03) {
+                        r.enBox = true;
+                        r.tiempoEnPit = 0;
+                    }
 
-                    let rPoint = path.getPointAtLength(r.dist);
-                    r.el.style.left = `${(rPoint.x / 200) * 240}px`;
-                    r.el.style.top = `${(rPoint.y / 150) * 180}px`;
+                    if(r.enBox) {
+                        r.tiempoEnPit += 60;
+                        // Efecto de parpadeo (titilado) durante el Pit Stop
+                        r.el.style.opacity = (Math.floor(r.tiempoEnPit / 250) % 2 === 0) ? "0.2" : "1.0";
+                        
+                        if(r.tiempoEnPit >= 5000) {
+                            r.enBox = false;
+                            r.desgaste = 100;
+                            r.compuesto = compuestosPosibles[Math.floor(Math.random() * 3)];
+                            r.degFactor = r.compuesto === "Blando" ? 0.8 : (r.compuesto === "Medio" ? 0.5 : 0.25);
+                            r.el.style.opacity = "0.85";
+                        }
+                    } else {
+                        r.desgaste = Math.max(10, r.desgaste - (0.05 * r.degFactor));
+                        let speedRivalConDesgaste = r.baseSpeed * Math.max(0.4, r.desgaste / 100);
+                        
+                        r.totalDist += speedRivalConDesgaste;
+                        r.dist = r.totalDist % pathLength;
+
+                        let rPoint = path.getPointAtLength(r.dist);
+                        r.el.style.left = `${(rPoint.x / 200) * 240}px`;
+                        r.el.style.top = `${(rPoint.y / 150) * 180}px`;
+                    }
                 });
 
+                // TABLA Y POSICIONES
                 let todosLosAutos = [
                     { nombre: miPiloto, escuderia: miEscuderia, distTotal: userTotalDist, esUser: true, neum: compuestoActual, deg: Math.max(0, Math.floor(desgaste)) },
                     ...rivales.map(r => ({ nombre: r.nombre, escuderia: r.escuderia, distTotal: r.totalDist, esUser: false, neum: r.compuesto, deg: Math.floor(r.desgaste) }))
@@ -523,14 +542,6 @@
             }, 60);
         }
 
-        function ordenarPitStop() { 
-            if(!enBox) { 
-                solicitadoPit = true; 
-                document.getElementById("pit-btn").innerText = "⏳ Pit Stop Confirmado";
-                document.getElementById("pit-btn").style.background = "#555";
-            } 
-        }
-
         function finalizarCarrera() {
             clearInterval(carreraInterval);
             document.getElementById("race-screen").classList.add("hidden");
@@ -555,12 +566,4 @@
             }
         }
 
-        function volverAlMuro() {
-            document.getElementById("results-screen").classList.add("hidden");
-            document.getElementById("game-screen").classList.remove("hidden");
-            actualizarCalendarioText();
-            renderTaller();
-        }
-    </script>
-</body>
-</html>
+        function volve
