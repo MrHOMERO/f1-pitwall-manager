@@ -5,193 +5,324 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>F1 Pitwall Manager 2026</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #121214; color: #ffffff; padding: 15px; text-align: center; }
-        h1 { color: #e10600; margin-bottom: 5px; font-size: 1.6rem; text-transform: uppercase; }
-        p { font-size: 0.9rem; color: #a1a1a6; margin-bottom: 15px; }
-        .card { background: #1c1c1e; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #2c2c2e; }
-        .btn { background: #e10600; color: white; border: none; padding: 12px 18px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 8px; }
-        .btn:disabled { background: #444; cursor: not-allowed; }
-        .btn-upgrade { background: #2c80ff; }
-        select { width: 100%; padding: 10px; background: #2c2c2e; color: white; border: 1px solid #444; border-radius: 8px; margin-bottom: 10px; font-size: 1rem; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #0b0e14; color: #fff; padding: 12px; text-align: center; }
+        h1 { color: #e10600; font-size: 1.5rem; letter-spacing: 1px; }
+        .card { background: #151922; border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #232936; }
+        .btn { background: #e10600; color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 8px; }
+        .btn-pit { background: #e5a900; color: #000; }
         .hidden { display: none; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin-bottom: 10px; }
-        .stat-item { background: #2c2c2e; padding: 8px; border-radius: 6px; font-size: 0.85rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        th, td { padding: 8px 4px; text-align: left; border-bottom: 1px solid #2c2c2e; }
+        
+        .grid-select { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; max-height: 200px; overflow-y: auto; }
+        .option-btn { background: #202634; border: 1px solid #323b4e; color: #fff; padding: 10px; border-radius: 8px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .option-btn.selected { border-color: #e10600; background: #321618; }
+        .flag { font-size: 1.2rem; }
+
+        /* Circuito SVG y Animación */
+        #track-container { position: relative; width: 240px; height: 180px; margin: 10px auto; background: #1a1f2c; border-radius: 12px; border: 1px solid #2d3548; }
+        svg { width: 100%; height: 100%; }
+        .car-dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; transform: translate(-50%, -50%); transition: all 0.05s linear; }
+        #user-dot { background: #00ff66; box-shadow: 0 0 10px #00ff66; z-index: 10; }
+        .rival-dot { background: #e10600; opacity: 0.7; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; margin-top: 10px; }
+        .dash-box { background: #1e2430; padding: 8px; border-radius: 6px; text-align: left; }
+        
+        .tire-selector { display: flex; gap: 6px; margin-top: 8px; }
+        .tire-btn { flex: 1; padding: 8px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; color: #000; font-size: 0.75rem; }
+        .tire-soft { background: #ff3b30; color: #fff; }
+        .tire-medium { background: #ffcc00; }
+        .tire-hard { background: #ffffff; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem; }
+        th, td { padding: 6px; text-align: left; border-bottom: 1px solid #232936; }
         th { color: #e10600; }
-        .user-row { background-color: #3a2020; font-weight: bold; color: #ff6b6b; }
+        .user-row { background: #341214; color: #ff6b6b; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>F1 Pitwall Manager</h1>
-    <p>Temporada 2026</p>
+    <h1>F1 PITWALL 2026</h1>
 
-    <!-- PANTALLA 1: SELECCIÓN -->
+    <!-- PANTALLA SELECCIÓN -->
     <div id="setup-screen" class="card">
-        <h3>Configurar Equipo</h3>
-        <br>
-        <label>Escudería:</label>
-        <select id="team-select" onchange="cargarPilotos()"></select>
-        
-        <label>Piloto Principal:</label>
-        <select id="driver-select"></select>
-        
-        <button class="btn" onclick="iniciarJuego()">Comenzar Temporada</button>
+        <h3>Elegí tu Escudería</h3>
+        <div id="team-options" class="grid-select"></div>
+
+        <h3 style="margin-top:15px;">Elegí a tu Piloto</h3>
+        <div id="driver-options" class="grid-select"></div>
+
+        <button class="btn" style="margin-top:15px;" onclick="confirmarEquipo()">Tomar el Mando</button>
     </div>
 
-    <!-- PANTALLA 2: DASHBOARD -->
+    <!-- PANTALLA PRINCIPAL -->
     <div id="game-screen" class="hidden">
         <div class="card">
-            <h2 id="user-info" style="color:#e10600;"></h2>
-            <p id="rp-display">Puntos RP: 0</p>
-            <button class="btn" onclick="simularCarrera()">🏎️ Simular Carrera GP</button>
+            <h2 id="team-title" style="color:#e10600;"></h2>
+            <p id="rp-display" style="margin-top:5px;">Puntos RP: 0</p>
+            <p id="next-gp" style="color:#a1a1a6; font-size:0.9rem; margin-top:5px;"></p>
+            <button class="btn" onclick="iniciarGranPremio()">🏎️ Disputar Gran Premio</button>
         </div>
 
-        <!-- TALLER DE MEJORAS -->
         <div class="card">
             <h3>Taller de I+D</h3>
-            <br>
-            <div id="upgrades-list"></div>
+            <div id="upgrades-list" style="margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- PANTALLA EN VIVO DE CARRERA -->
+    <div id="race-screen" class="card hidden">
+        <h3 id="gp-title">Gran Premio</h3>
+        
+        <!-- Circuito SVG -->
+        <div id="track-container">
+            <svg viewBox="0 0 200 150">
+                <path id="track-path" d="M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z" fill="none" stroke="#2d3548" stroke-width="12" stroke-linejoin="round"/>
+                <path d="M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z" fill="none" stroke="#4a5568" stroke-width="2" stroke-dasharray="4,4"/>
+            </svg>
+            <div id="user-dot" class="car-dot"></div>
+            <div id="rivals-container"></div>
         </div>
 
-        <!-- RESULTADOS DE CARRERA -->
-        <div id="results-card" class="card hidden">
-            <h3>Resultados de la Carrera</h3>
-            <table>
-                <thead>
-                    <tr><th>Pos</th><th>Piloto</th><th>Escudería</th><th>Pts</th></tr>
-                </thead>
-                <tbody id="results-body"></tbody>
-            </table>
+        <div class="dashboard-grid">
+            <div class="dash-box">Posición: <b id="live-pos" style="color:#00ff66;">P22</b></div>
+            <div class="dash-box">Vuelta: <b id="live-lap">0/10</b></div>
+            <div class="dash-box">Goma: <b id="live-compound">Medio</b> (<span id="live-tires">100%</span>)</div>
+            <div class="dash-box">Estado: <b id="pit-status">Pista</b></div>
         </div>
+
+        <!-- Estrategia de Neumáticos en Carrera -->
+        <div style="margin-top:10px;">
+            <p style="font-size:0.8rem; text-align:left;">Estrategia de Pit Stop:</p>
+            <div class="tire-selector">
+                <button class="tire-btn tire-soft" onclick="seleccionarEstrategia('Blando')">Blando (Rápido/Alta Degradación)</button>
+                <button class="tire-btn tire-medium" onclick="seleccionarEstrategia('Medio')">Medio (Balanceado)</button>
+                <button class="tire-btn tire-hard" onclick="seleccionarEstrategia('Duro')">Duro (Consistente/Lento)</button>
+            </div>
+        </div>
+
+        <button id="pit-btn" class="btn btn-pit" onclick="ordenarPitStop()">⚠️ ¡ENTRAR A BOXES!</button>
+    </div>
+
+    <!-- RESULTADOS CARRERA -->
+    <div id="results-screen" class="card hidden">
+        <h3>Clasificación Final</h3>
+        <table>
+            <thead><tr><th>Pos</th><th>Piloto</th><th>Escudería</th><th>Pts</th></tr></thead>
+            <tbody id="results-body"></tbody>
+        </table>
+        <button class="btn" onclick="volverAlMuro()">Siguiente Gran Premio</button>
     </div>
 
     <script>
         const PARRILLA = {
-            "McLaren": ["Lando Norris", "Oscar Piastri"],
-            "Ferrari": ["Charles Leclerc", "Lewis Hamilton"],
-            "Mercedes": ["George Russell", "Kimi Antonelli"],
-            "Red Bull Racing": ["Max Verstappen", "Isack Hadjar"],
-            "Williams": ["Alex Albon", "Carlos Sainz"],
-            "Audi": ["Nico Hülkenberg", "Gabriel Bortoleto"],
-            "Alpine": ["Pierre Gasly", "Franco Colapinto"],
-            "Haas": ["Oliver Bearman", "Esteban Ocon"],
-            "Racing Bulls": ["Liam Lawson", "Arvid Lindblad"],
-            "Aston Martin": ["Fernando Alonso", "Lance Stroll"],
-            "Cadillac": ["Sergio Pérez", "Valtteri Bottas"]
+            "McLaren": [{n:"Lando Norris", f:"🇬🇧"}, {n:"Oscar Piastri", f:"🇦🇺"}],
+            "Ferrari": [{n:"Charles Leclerc", f:"🇲🇨"}, {n:"Lewis Hamilton", f:"🇬🇧"}],
+            "Mercedes": [{n:"George Russell", f:"🇬🇧"}, {n:"Kimi Antonelli", f:"🇮🇹"}],
+            "Red Bull": [{n:"Max Verstappen", f:"🇳🇱"}, {n:"Isack Hadjar", f:"🇫🇷"}],
+            "Williams": [{n:"Alex Albon", f:"🇹🇭"}, {n:"Carlos Sainz", f:"🇪🇸"}],
+            "Audi": [{n:"Nico Hülkenberg", f:"🇩🇪"}, {n:"Gabriel Bortoleto", f:"🇧🇷"}],
+            "Alpine": [{n:"Pierre Gasly", f:"🇫🇷"}, {n:"Franco Colapinto", f:"🇦🇷"}],
+            "Haas": [{n:"Oliver Bearman", f:"🇬🇧"}, {n:"Esteban Ocon", f:"🇫🇷"}],
+            "Racing Bulls": [{n:"Liam Lawson", f:"🇳🇿"}, {n:"Arvid Lindblad", f:"🇬🇧"}],
+            "Aston Martin": [{n:"Fernando Alonso", f:"🇪🇸"}, {n:"Lance Stroll", f:"🇨🇦"}],
+            "Cadillac": [{n:"Sergio Pérez", f:"🇲🇽"}, {n:"Valtteri Bottas", f:"🇫🇮"}]
         };
 
-        const PUNTOS_F1 = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+        const CALENDARIO_2026 = [
+            "GP de Australia (Melbourne)", "GP de China (Shanghai)", "GP de Japón (Suzuka)",
+            "GP de Baréin (Sakhir)", "GP de Arabia Saudita (Jeddah)", "GP de Miami",
+            "GP de Emilia-Romaña (Imola)", "GP de Mónaco", "GP de Canadá (Montreal)",
+            "GP de España (Barcelona)", "GP de Austria (Red Bull Ring)", "GP del Reino Unido (Silverstone)",
+            "GP de Bélgica (Spa-Francorchamps)", "GP de Hungría (Hungaroring)", "GP de Países Bajos (Zandvoort)",
+            "GP de Italia (Monza)", "GP de Azerbaiyán (Bakú)", "GP de Singapur",
+            "GP de Estados Unidos (Austin)", "GP de México", "GP de Brasil (Interlagos)",
+            "GP de Las Vegas", "GP de Catar (Lusail)", "GP de Abu Dhabi (Yas Marina)"
+        ];
 
-        let miEscuderia = "";
-        let miPiloto = "";
-        let rp = 0;
-        let carreraActual = 1;
-        let componentes = { "Alerones": 1, "Motor": 1, "Frenos": 1, "Suspensión": 1 };
+        let miEscuderia = "McLaren", miPiloto = "Lando Norris", rp = 0, fechaCalendario = 0;
+        let componentes = { "Alerones": 1, "Motor": 1, "Frenos": 1, "Suspensión": 1, "Neumáticos": 1 };
+        let carreraInterval, vuelta = 0, desgaste = 100, enBox = false, miPosicion = 15;
+        let compuestoActual = "Medio", compuestoSiguiente = "Medio";
+        let rivales = [];
 
         function init() {
-            const teamSelect = document.getElementById("team-select");
-            for (let team in PARRILLA) {
-                let opt = document.createElement("option");
-                opt.value = team;
-                opt.innerText = team;
-                teamSelect.appendChild(opt);
+            const tDiv = document.getElementById("team-options");
+            for(let team in PARRILLA) {
+                tDiv.innerHTML += `<div class="option-btn" onclick="selTeam('${team}', this)"><b>${team}</b></div>`;
             }
-            cargarPilotos();
+            selTeam("McLaren", tDiv.children[0]);
         }
 
-        function cargarPilotos() {
-            const team = document.getElementById("team-select").value;
-            const driverSelect = document.getElementById("driver-select");
-            driverSelect.innerHTML = "";
-            PARRILLA[team].forEach(driver => {
-                let opt = document.createElement("option");
-                opt.value = driver;
-                opt.innerText = driver;
-                driverSelect.appendChild(opt);
+        function selTeam(team, el) {
+            miEscuderia = team;
+            document.querySelectorAll("#team-options .option-btn").forEach(b => b.classList.remove("selected"));
+            if(el) el.classList.add("selected");
+
+            const dDiv = document.getElementById("driver-options");
+            dDiv.innerHTML = "";
+            PARRILLA[team].forEach((d, i) => {
+                dDiv.innerHTML += `<div class="option-btn ${i===0?'selected':''}" onclick="selDriver('${d.n}', this)">
+                    <span class="flag">${d.f}</span> ${d.n}
+                </div>`;
             });
+            miPiloto = PARRILLA[team][0].n;
         }
 
-        function iniciarJuego() {
-            miEscuderia = document.getElementById("team-select").value;
-            miPiloto = document.getElementById("driver-select").value;
-            
+        function selDriver(driver, el) {
+            miPiloto = driver;
+            document.querySelectorAll("#driver-options .option-btn").forEach(b => b.classList.remove("selected"));
+            el.classList.add("selected");
+        }
+
+        function confirmarEquipo() {
             document.getElementById("setup-screen").classList.add("hidden");
             document.getElementById("game-screen").classList.remove("hidden");
-            document.getElementById("user-info").innerText = `${miEscuderia} | ${miPiloto}`;
-            
+            document.getElementById("team-title").innerText = `${miEscuderia} | ${miPiloto}`;
+            actualizarCalendarioText();
             renderTaller();
         }
 
+        function actualizarCalendarioText() {
+            document.getElementById("next-gp").innerText = `Próxima Fecha: ${CALENDARIO_2026[fechaCalendario % CALENDARIO_2026.length]}`;
+        }
+
         function renderTaller() {
-            document.getElementById("rp-display").innerText = `Puntos de Desarrollo (RP): ${rp}`;
+            document.getElementById("rp-display").innerText = `Puntos RP Disponibles: ${rp}`;
             const container = document.getElementById("upgrades-list");
             container.innerHTML = "";
+            for (let c in componentes) {
+                let lvl = componentes[c], costo = lvl * 50;
+                container.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#1e2430; padding:8px; border-radius:6px;">
+                        <span style="font-size:0.85rem;"><b>${c}</b> (Nvl ${lvl})</span>
+                        <button class="btn" style="width:auto; padding:6px 12px; margin:0; font-size:0.8rem;" ${rp < costo ? 'disabled':''} onclick="mejorar('${c}', ${costo})">
+                            Mejorar (+${costo} RP)
+                        </button>
+                    </div>`;
+            }
+        }
+
+        function mejorar(c, costo) {
+            if(rp >= costo) { rp -= costo; componentes[c]++; renderTaller(); }
+        }
+
+        function seleccionarEstrategia(compuesto) { compuestoSiguiente = compuesto; }
+
+        /* SIMULACIÓN CON TRAZADO REAL SVG Y LOS 22 AUTOS */
+        function iniciarGranPremio() {
+            document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("race-screen").classList.remove("hidden");
+            document.getElementById("gp-title").innerText = CALENDARIO_2026[fechaCalendario % CALENDARIO_2026.length];
             
-            for (let comp in componentes) {
-                let nivel = componentes[comp];
-                let costo = nivel * 50;
+            vuelta = 0; desgaste = 100; enBox = false; miPosicion = 15;
+            compuestoActual = "Medio"; compuestoSiguiente = "Medio";
+
+            const path = document.getElementById("track-path");
+            const pathLength = path.getTotalLength();
+            
+            // Generar los 21 rivales restantes con posiciones iniciales aleatorias
+            const rivalsContainer = document.getElementById("rivals-container");
+            rivalsContainer.innerHTML = "";
+            rivales = [];
+            for(let i=0; i<21; i++) {
                 let div = document.createElement("div");
-                div.className = "stat-grid";
-                div.innerHTML = `
-                    <div class="stat-item"><b>${comp}</b><br>Nivel: ${nivel}</div>
-                    <button class="btn btn-upgrade" ${rp < costo ? 'disabled' : ''} onclick="mejorar('${comp}', ${costo})">
-                        Mejorar (${costo} RP)
-                    </button>
-                `;
-                container.appendChild(div);
+                div.className = "car-dot rival-dot";
+                rivalsContainer.appendChild(div);
+                rivales.push({ el: div, dist: Math.random() * pathLength, speed: 1.5 + Math.random() * 0.5 });
             }
-        }
 
-        function mejorar(comp, costo) {
-            if (rp >= costo) {
-                rp -= costo;
-                componentes[comp]++;
-                renderTaller();
-            }
-        }
+            let userDist = 0;
 
-        function simularCarrera() {
-            let competidores = [];
-            let rendimientoTotal = Object.values(componentes).reduce((a, b) => a + b, 0);
+            carreraInterval = setInterval(() => {
+                if(enBox) {
+                    desgaste = Math.min(100, desgaste + 30);
+                    document.getElementById("pit-status").innerText = "🔧 En Pit Stop...";
+                    if(desgaste >= 100) {
+                        enBox = false;
+                        compuestoActual = compuestoSiguiente;
+                        document.getElementById("live-compound").innerText = compuestoActual;
+                    }
+                    return;
+                }
 
-            for (let esc in PARRILLA) {
-                PARRILLA[esc].forEach(piloto => {
-                    let bonus = (piloto === miPiloto) ? rendimientoTotal * 3 : Math.floor(Math.random() * 10);
-                    let score = Math.floor(Math.random() * 50) + 50 + bonus;
-                    competidores.push({ piloto, escuderia: esc, score });
+                document.getElementById("pit-status").innerText = "Pista";
+                
+                // Multiplicadores según compuesto
+                let multVel = 1.0, multDeg = 1.0;
+                if(compuestoActual === "Blando") { multVel = 1.25; multDeg = 1.8; }
+                if(compuestoActual === "Medio") { multVel = 1.0; multDeg = 1.0; }
+                if(compuestoActual === "Duro") { multVel = 0.85; multDeg = 0.5; }
+
+                // Eficiencia del auto sumando componentes (incluyendo Neumáticos)
+                let rendTotal = Object.values(componentes).reduce((a,b)=>a+b, 0);
+                let desgasteFactor = Math.max(0.2, desgaste / 100);
+                let userSpeed = (1.2 + (rendTotal * 0.08)) * multVel * desgasteFactor;
+
+                userDist = (userDist + userSpeed) % pathLength;
+                vuelta += userSpeed / pathLength;
+                desgaste -= (0.4 * multDeg) / (componentes["Neumáticos"] * 0.5);
+
+                // Renderizar Auto del Usuario en el Trazado
+                let point = path.getPointAtLength(userDist);
+                let userDot = document.getElementById("user-dot");
+                userDot.style.left = `${(point.x / 200) * 240}px`;
+                userDot.style.top = `${(point.y / 150) * 180}px`;
+
+                // Renderizar Rivales
+                let rivalesAdelante = 0;
+                rivales.forEach(r => {
+                    r.dist = (r.dist + r.speed) % pathLength;
+                    let rPoint = path.getPointAtLength(r.dist);
+                    r.el.style.left = `${(rPoint.x / 200) * 240}px`;
+                    r.el.style.top = `${(rPoint.y / 150) * 180}px`;
+                    if(r.dist > userDist) rivalesAdelante++;
                 });
-            }
 
-            competidores.sort((a, b) => b.score - a.score);
+                miPosicion = rivalesAdelante + 1;
+
+                document.getElementById("live-pos").innerText = `P${miPosicion}`;
+                document.getElementById("live-lap").innerText = `${Math.floor(vuelta)}/10`;
+                document.getElementById("live-tires").innerText = `${Math.max(0, Math.floor(desgaste))}%`;
+
+                if(vuelta >= 10) finalizarCarrera();
+            }, 60);
+        }
+
+        function ordenarPitStop() { if(!enBox) enBox = true; }
+
+        function finalizarCarrera() {
+            clearInterval(carreraInterval);
+            document.getElementById("race-screen").classList.add("hidden");
+            document.getElementById("results-screen").classList.remove("hidden");
+
+            let ganados = (23 - miPosicion) * 25;
+            rp += ganados;
+            fechaCalendario++;
 
             const tbody = document.getElementById("results-body");
             tbody.innerHTML = "";
-            let posJugador = 0;
+            let pos = 1;
+            for(let team in PARRILLA) {
+                PARRILLA[team].forEach(d => {
+                    let esUser = (d.n === miPiloto);
+                    let pPos = esUser ? miPosicion : (pos === miPosicion ? pos + 1 : pos);
+                    tbody.innerHTML += `<tr class="${esUser?'user-row':''}">
+                        <td>P${pPos}</td><td>${d.f} ${d.n}</td><td>${team}</td><td>+${Math.max(0, 25-pPos*2)}</td>
+                    </tr>`;
+                    pos++;
+                });
+            }
+        }
 
-            competidores.forEach((c, index) => {
-                let pos = index + 1;
-                let pts = PUNTOS_F1[index] || 0;
-                let row = document.createElement("tr");
-                if (c.piloto === miPiloto) {
-                    row.className = "user-row";
-                    posJugador = pos;
-                }
-                row.innerHTML = `<td>P${pos}</td><td>${c.piloto}</td><td>${c.escuderia}</td><td>+${pts}</td>`;
-                tbody.appendChild(row);
-            });
-
-            let ganados = Math.max(1, 23 - posJugador) * 15;
-            rp += ganados;
-            carreraActual++;
-            
-            document.getElementById("results-card").classList.remove("hidden");
+        function volverAlMuro() {
+            document.getElementById("results-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            actualizarCalendarioText();
             renderTaller();
         }
 
         init();
     </script>
 </body>
-</html>
+    </html>
