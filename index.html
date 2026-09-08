@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pitwall Manager 2026</title>
+    <title>Pitwall Manager 2026 - Ferrari Edition</title>
     <style>
+        /* CSS Reset y Estilos Globales */
         * { box-sizing: border-box; font-family: 'Segoe UI', -apple-system, Roboto, sans-serif; margin: 0; padding: 0; }
         body { background-color: #0d0d0d; color: #ffffff; text-align: center; overflow-x: hidden; }
         
@@ -12,68 +13,295 @@
         .text-ferrari { color: #e10600; }
         .bg-ferrari { background-color: #e10600; }
 
-        /* PANTALLA SPLASH */
+        /* 1. PANTALLA SPLASH */
         #splash-screen {
-            height: 100vh; display: flex; flex-direction: column;
-            justify-content: flex-end; align-items: center; padding-bottom: 50px;
-            background: linear-gradient(180deg, rgba(13,13,13,0.2) 0%, rgba(13,13,13,0.95) 85%),
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 50px;
+            background: linear-gradient(180deg, rgba(13, 13, 13, 0.2) 0%, rgba(13, 13, 13, 0.95) 85%),
                         radial-gradient(circle at center, #2a0404 0%, #0d0d0d 100%);
             border-bottom: 4px solid #e10600;
         }
-        .brand-badge { background: #fff; color: #000; font-weight: 900; font-size: 0.8rem; padding: 4px 12px; letter-spacing: 2px; border-radius: 2px; margin-bottom: 10px; text-transform: uppercase; }
-        .main-title { font-size: 2.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; line-height: 0.95; margin-bottom: 5px; }
-        .main-title span { color: #e10600; display: block; }
-        .subtitle { color: #a0a0a0; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 30px; }
+
+        .brand-badge {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 900;
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            letter-spacing: 2px;
+            border-radius: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .main-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            line-height: 0.95;
+            margin-bottom: 5px;
+        }
+
+        .main-title span {
+            color: #e10600;
+            display: block;
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
 
         .btn-main {
-            background: #e10600; color: #ffffff; border: none; width: 85%; max-width: 320px;
-            padding: 16px; font-size: 1.1rem; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1px; border-radius: 4px; cursor: pointer;
-            box-shadow: 0 4px 20px rgba(225, 6, 0, 0.4); transition: all 0.2s ease;
+            background: #e10600;
+            color: #ffffff;
+            border: none;
+            width: 85%;
+            max-width: 320px;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(225, 6, 0, 0.4);
+            transition: all 0.2s ease;
         }
-        .btn-main:active { transform: scale(0.97); background: #b80500; }
 
-        /* PANTALLA DE CONFIGURACIÓN */
-        #setup-screen { padding: 20px 15px; max-width: 450px; margin: 0 auto; text-align: left; }
-        .setup-title { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; border-left: 4px solid #e10600; padding-left: 10px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: #a0a0a0; text-transform: uppercase; margin-bottom: 6px; }
-        .form-control { width: 100%; background: #161616; border: 1px solid #262626; padding: 12px; border-radius: 4px; color: #fff; font-size: 0.95rem; }
-        .form-control:focus { outline: none; border-color: #e10600; }
-        
-        .grid-select { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        .option-card { background: #161616; border: 1px solid #262626; border-radius: 4px; padding: 10px; cursor: pointer; transition: all 0.2s ease; }
-        .option-card.selected { border-color: #e10600; background: #220808; }
-        .option-card h4 { font-size: 0.85rem; font-weight: 800; }
-        .option-card p { font-size: 0.75rem; color: #888; }
+        .btn-main:active {
+            transform: scale(0.97);
+            background: #b80500;
+        }
 
-        /* DASHBOARD MENÚ PRINCIPAL */
-        #main-menu { padding: 15px; max-width: 450px; margin: 0 auto; }
-        .manager-header { background: #161616; border-left: 5px solid #e10600; border-radius: 6px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; text-align: left; }
-        .manager-info h2 { font-size: 1.2rem; font-weight: 800; color: #ffffff; }
-        .manager-info p { font-size: 0.8rem; color: #888888; }
-        .currency-badge { background: #222222; border: 1px solid #333333; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; }
+        /* 2. PANTALLA DE CONFIGURACIÓN Y SELECCIÓN */
+        #setup-screen {
+            padding: 20px 15px;
+            max-width: 450px;
+            margin: 0 auto;
+            text-align: left;
+        }
 
-        .next-race-card { background: linear-gradient(135deg, #1c1c1c 0%, #111111 100%); border: 1px solid #333333; border-radius: 6px; padding: 15px; text-align: left; margin-bottom: 15px; }
-        .race-tag { font-size: 0.7rem; font-weight: 800; color: #e10600; text-transform: uppercase; letter-spacing: 1px; }
-        .race-title { font-size: 1.1rem; font-weight: 800; margin: 4px 0; }
+        .setup-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-left: 4px solid #e10600;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
 
-        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
-        .menu-card { background: #161616; border: 1px solid #262626; border-radius: 6px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: border-color 0.2s ease; }
-        .menu-card:hover { border-color: #e10600; }
-        .menu-card .icon { font-size: 1.8rem; }
-        .menu-card .label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            background: #161616;
+            border: 1px solid #262626;
+            padding: 12px;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #e10600;
+        }
+
+        .grid-select {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .option-card {
+            background: #161616;
+            border: 1px solid #262626;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-card.selected {
+            border-color: #e10600;
+            background: #220808;
+        }
+
+        .option-card h4 {
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .option-card p {
+            font-size: 0.75rem;
+            color: #888888;
+        }
+
+        /* 3. DASHBOARD MENÚ PRINCIPAL */
+        #main-menu {
+            padding: 15px;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .manager-header {
+            background: #161616;
+            border-left: 5px solid #e10600;
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .manager-info h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .manager-info p {
+            font-size: 0.8rem;
+            color: #888888;
+        }
+
+        .currency-badge {
+            background: #222222;
+            border: 1px solid #333333;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .next-race-card {
+            background: linear-gradient(135deg, #1c1c1c 0%, #111111 100%);
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .race-tag {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #e10600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .race-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin: 4px 0;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .menu-card {
+            background: #161616;
+            border: 1px solid #262626;
+            border-radius: 6px;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .menu-card:hover {
+            border-color: #e10600;
+        }
+
+        .menu-card .icon {
+            font-size: 1.8rem;
+        }
+
+        .menu-card .label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
         /* MODALES DE ACCIÓN */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: #161616; border: 1px solid #333; border-radius: 6px; width: 90%; max-width: 400px; padding: 20px; text-align: left; position: relative; }
-        .modal-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; border-left: 3px solid #e10600; padding-left: 8px; margin-bottom: 12px; }
-        .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #aaa; font-size: 1.2rem; cursor: pointer; }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #161616;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            text-align: left;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-left: 3px solid #e10600;
+            padding-left: 8px;
+            margin-bottom: 12px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #aaaaaa;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <!-- 1. SPLASH -->
     <div id="splash-screen">
         <div class="brand-badge">Scuderia Hub</div>
         <h1 class="main-title">GP MANAGER <span>2026</span></h1>
@@ -81,7 +309,6 @@
         <button class="btn-main" onclick="irAConfiguracion()">Iniciar Carrera</button>
     </div>
 
-    <!-- 2. SELECCIÓN Y CONFIGURACIÓN -->
     <div id="setup-screen" class="hidden">
         <h2 class="setup-title">Perfil de Carrera</h2>
         
@@ -117,7 +344,6 @@
         <button class="btn-main" style="width:100%; margin-top:10px;" onclick="confirmarTodo()">Tomar el Mando</button>
     </div>
 
-    <!-- 3. MENÚ PRINCIPAL (DASHBOARD) -->
     <div id="main-menu" class="hidden">
         <div class="manager-header">
             <div class="manager-info">
@@ -157,7 +383,74 @@
         </div>
     </div>
 
-    <!-- MODAL DE ACCIONES -->
+    <div id="race-screen" class="hidden" style="padding:15px; max-width:450px; margin:0 auto;">
+        
+        <div class="next-race-card" style="margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="race-tag" id="sim-gp-title">GP DE AUSTRALIA</span>
+                <span id="sim-weather" style="font-size:0.8rem; font-weight:700;">☀️ SECO</span>
+            </div>
+            <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">
+                Mánager: <b id="sim-manager-name" style="color:#fff;">-</b> | Ing: <b id="sim-engineer-name" style="color:#fff;">-</b>
+            </div>
+        </div>
+
+        <!-- Radio de Boxes -->
+        <div style="background:#161616; border:1px solid #262626; border-left:4px solid #e10600; border-radius:4px; padding:10px; text-align:left; font-size:0.8rem; margin-bottom:10px;">
+            <div style="color:#e10600; font-weight:800; font-size:0.7rem;">📻 RADIO DE BOXES EN VIVO</div>
+            <div id="radio-msg" style="margin-top:2px; font-style:italic; color:#ccc;">"Monitoreando telemetría del auto..."</div>
+        </div>
+
+        <!-- Trazado del Circuito -->
+        <div id="track-container" style="position:relative; width:100%; height:160px; background:#111; border:1px solid #262626; border-radius:6px; margin-bottom:10px; overflow:hidden;">
+            <svg viewBox="0 0 200 150" style="width:100%; height:100%;">
+                <path id="track-path" d="M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z" fill="none" stroke="#262626" stroke-width="12" stroke-linejoin="round"/>
+                <path id="track-inner-path" d="M 30,75 C 30,20 80,20 120,40 C 160,60 170,20 180,50 C 190,90 150,130 100,130 C 50,130 30,110 30,75 Z" fill="none" stroke="#444" stroke-width="2" stroke-dasharray="4,4"/>
+            </svg>
+            <div id="user-dot" style="width:10px; height:10px; border-radius:50%; position:absolute; transform:translate(-50%, -50%); background:#e10600; border:2px solid #fff; box-shadow:0 0 8px #e10600; z-index:10;"></div>
+            <div id="rivals-container"></div>
+        </div>
+
+        <!-- Panel de Telemetría en Vivo -->
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; font-size:0.8rem; margin-bottom:10px; text-align:left;">
+            <div style="background:#161616; padding:8px 10px; border-radius:4px; border:1px solid #262626;">Posición: <b id="live-pos" style="color:#e10600;">P15</b></div>
+            <div style="background:#161616; padding:8px 10px; border-radius:4px; border:1px solid #262626;">Vuelta: <b id="live-lap">0/10</b></div>
+            <div style="background:#161616; padding:8px 10px; border-radius:4px; border:1px solid #262626;">Goma: <b id="live-compound">Blando</b> (<span id="live-tires">100%</span>)</div>
+            <div style="background:#161616; padding:8px 10px; border-radius:4px; border:1px solid #262626;">Pista: <b id="live-track-status">☀️ Seco</b></div>
+        </div>
+
+        <!-- Selector de Neumáticos para Pit Stop -->
+        <div style="text-align:left; margin-bottom:10px;">
+            <label style="font-size:0.75rem; color:#888; text-transform:uppercase; font-weight:700;">Próximo compuesto para Box:</label>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:4px; margin-top:4px;">
+                <button class="btn-main" style="padding:8px 2px; font-size:0.7rem; background:#cc0000;" onclick="seleccionarProximoCompuesto('Blando')">🔴 Sof</button>
+                <button class="btn-main" style="padding:8px 2px; font-size:0.7rem; background:#d4af37;" onclick="seleccionarProximoCompuesto('Medio')">🟡 Med</button>
+                <button class="btn-main" style="padding:8px 2px; font-size:0.7rem; background:#ffffff; color:#000;" onclick="seleccionarProximoCompuesto('Duro')">⚪ Dur</button>
+                <button class="btn-main" style="padding:8px 2px; font-size:0.7rem; background:#007aff;" onclick="seleccionarProximoCompuesto('Lluvia')">🔵 Llu</button>
+            </div>
+        </div>
+
+        <button id="pit-btn" class="btn-main" style="width:100%; background:#d4af37; color:#000;" onclick="ordenarPitStop()">⚠️ ENTRAR A BOXES</button>
+    </div>
+
+    <!-- 5. PANTALLA DE RESULTADOS -->
+    <div id="results-screen" class="hidden" style="padding:15px; max-width:450px; margin:0 auto;">
+        <h2 class="setup-title">Clasificación Final</h2>
+        <table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left; margin-bottom:15px;">
+            <thead>
+                <tr style="border-bottom:2px solid #e10600; color:#e10600;">
+                    <th style="padding:6px;">Pos</th>
+                    <th style="padding:6px;">Piloto</th>
+                    <th style="padding:6px;">Escudería</th>
+                    <th style="padding:6px;">Pts</th>
+                </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+        </table>
+        <button class="btn-main" style="width:100%;" onclick="volverAlMuro()">Volver al Muro de Boxes</button>
+    </div>
+
+    <!-- MODAL GENERAL DE ACCIONES -->
     <div id="modal-box" class="modal hidden">
         <div class="modal-content">
             <button class="close-btn" onclick="cerrarModal()">✕</button>
@@ -166,7 +459,9 @@
         </div>
     </div>
 
+    <!-- LÓGICA DE PROGRAMACIÓN (JAVASCRIPT) -->
     <script>
+        // --- BASE DE DATOS Y ESTADO GLOBAL ---
         const PARRILLA = {
             "Scuderia Ferrari": { color: "#e10600", pilotos: ["Charles Leclerc", "Lewis Hamilton"] },
             "McLaren F1": { color: "#ff8000", pilotos: ["Lando Norris", "Oscar Piastri"] },
@@ -175,7 +470,21 @@
         };
 
         let managerName = "", escuderiaSel = "Scuderia Ferrari", pilotoSel = "", ingenieroSel = "Gianpiero Lambiase (+3% Ritmo)";
+        let componentes = { "Neumáticos": { lvl: 1, desgaste: 0 } };
+        let carreraInterval, vuelta = 0, desgaste = 100, enBox = false, miPosicion = 15;
+        let compuestoActual = "Blando", compuestoSiguiente = "Blando";
+        let rivales = [], tiempoEnPitUser = 0;
+        let climaCarrera = "Seco", rp = 1500;
 
+        const MENSAJES_RADIO = [
+            "¡Las gomas se están degradando rápido!",
+            "El auto se siente estable en las curvas lentas.",
+            "Reportan posibles gotas en el sector 2...",
+            "¡Mantén el ritmo, excelente trabajo!",
+            "Perdiendo un poco de tracción en la salida de la curva 4."
+        ];
+
+        // --- FLUJO DE SETUP ---
         function irAConfiguracion() {
             document.getElementById("splash-screen").classList.add("hidden");
             document.getElementById("setup-screen").classList.remove("hidden");
@@ -205,7 +514,7 @@
             const dDiv = document.getElementById("driver-options");
             dDiv.innerHTML = "";
             PARRILLA[team].pilotos.forEach((p, i) => {
-                if(i===0 && !pilotoSel) pilotoSel = p;
+                if(i === 0 && !pilotoSel) pilotoSel = p;
                 dDiv.innerHTML += `
                     <div class="option-card ${p === pilotoSel ? 'selected':''}" onclick="selDriver('${p}', this)">
                         <h4>${p}</h4>
@@ -233,8 +542,10 @@
             document.getElementById("disp-manager").innerText = managerName;
             document.getElementById("disp-team-driver").innerText = `${escuderiaSel} | ${pilotoSel}`;
             document.getElementById("disp-engineer").innerText = `Ingeniero: ${ingenieroSel}`;
+            document.getElementById("rp-count").innerText = rp.toLocaleString();
         }
 
+        // --- SISTEMA DE MODALES E INTERACTIVIDAD ---
         function abrirModal(tipo) {
             const mBox = document.getElementById("modal-box");
             const mTitle = document.getElementById("modal-title");
@@ -244,7 +555,7 @@
 
             if(tipo === 'monoplaza') {
                 mTitle.innerText = "Monoplaza";
-                mBody.innerHTML = `<p>Estado del auto de <b>${pilotoSel}</b>:</p><br><ul><li>Alerón Delantero: 100%</li><li>Motor V6 Turbo: 100%</li><li>Sistemas ERS/MGU-K: 100%</li></ul>`;
+                mBody.innerHTML = `<p>Estado del auto de <b>${pilotoSel}</b>:</p><br><ul><li>• Alerón Delantero: 100%</li><li>• Motor V6 Turbo: 100%</li><li>• Sistemas ERS/MGU-K: 100%</li></ul>`;
             } else if(tipo === 'taller') {
                 mTitle.innerText = "Taller I+D";
                 mBody.innerHTML = `<p>Desarrollo técnico coordinado con <b>${ingenieroSel}</b>.</p><br><p>Proyectos activos: Mejora de Carga Aerodinámica (2 carreras restantes).</p>`;
@@ -256,13 +567,198 @@
                 mBody.innerHTML = `<p>Tabla de Posiciones Mundial de Mánagers y Pilotos.</p><br><p>Líder actual: Max Verstappen (0 pts - Pretemporada).</p>`;
             } else if(tipo === 'ir-estrategia') {
                 mTitle.innerText = "Estrategia GP Australia";
-                mBody.innerHTML = `<p>Mánager <b>${managerName}</b>, elige el plan para <b>${pilotoSel}</b>:</p><br><p>Plan A: Sof-Med (1 Parada)<br>Plan B: Sof-Sof-Med (2 Paradas)</p>`;
+                mBody.innerHTML = `
+                    <p>Mánager <b>${managerName}</b>, confirma la estrategia para <b>${pilotoSel}</b>:</p><br>
+                    <p>• Compuesto inicial: 🔴 Blando<br>• Asistencia de Ingeniero: <b>${ingenieroSel.split(" ")[0]}</b></p><br>
+                    <button class="btn-main" style="width:100%; font-size:0.9rem;" onclick="iniciarSimulacion()">🟢 INICIAR CARRERA</button>
+                `;
             }
         }
 
         function cerrarModal() {
             document.getElementById("modal-box").classList.add("hidden");
         }
+
+        // --- SIMULACIÓN DE CARRERA (EN VIVO) ---
+        function iniciarSimulacion() {
+            cerrarModal();
+            document.getElementById("main-menu").classList.add("hidden");
+            document.getElementById("race-screen").classList.remove("hidden");
+
+            document.getElementById("sim-manager-name").innerText = managerName;
+            document.getElementById("sim-engineer-name").innerText = ingenieroSel.split(" ")[0];
+
+            climaCarrera = Math.random() < 0.4 ? "Lluvia" : "Seco";
+            document.getElementById("sim-weather").innerText = climaCarrera === "Lluvia" ? "🌧️ LLUVIA" : "☀️ SECO";
+            document.getElementById("live-track-status").innerText = climaCarrera === "Lluvia" ? "🌧️ Mojado" : "☀️ Seco";
+
+            const teamColor = PARRILLA[escuderiaSel] ? PARRILLA[escuderiaSel].color : "#e10600";
+            document.getElementById("user-dot").style.background = teamColor;
+            document.getElementById("user-dot").style.boxShadow = `0 0 8px ${teamColor}`;
+
+            vuelta = 0; desgaste = 100; enBox = false; miPosicion = 15;
+            compuestoActual = "Blando";
+            compuestoSiguiente = "Blando";
+            document.getElementById("live-compound").innerText = compuestoActual;
+
+            const path = document.getElementById("track-path");
+            const pathLength = path.getTotalLength();
+
+            const rivalsContainer = document.getElementById("rivals-container");
+            rivalsContainer.innerHTML = "";
+            rivales = [];
+
+            for(let team in PARRILLA) {
+                PARRILLA[team].pilotos.forEach(piloto => {
+                    if(piloto !== pilotoSel) {
+                        let div = document.createElement("div");
+                        div.style.cssText = `width:8px; height:8px; border-radius:50%; position:absolute; transform:translate(-50%,-50%); background:${PARRILLA[team].color}; opacity:0.8;`;
+                        rivalsContainer.appendChild(div);
+
+                        let initDist = Math.random() * (pathLength * 0.15);
+                        rivales.push({
+                            nombre: piloto, escuderia: team, el: div,
+                            totalDist: initDist,
+                            baseSpeed: 1.5 + (Math.random() * 0.2 - 0.1),
+                            desgaste: 100,
+                            enBox: false, tiempoEnPit: 0
+                        });
+                    }
+                });
+            }
+
+            let userTotalDist = 0;
+
+            carreraInterval = setInterval(() => {
+                if (Math.random() < 0.04) {
+                    let msg = MENSAJES_RADIO[Math.floor(Math.random() * MENSAJES_RADIO.length)];
+                    document.getElementById("radio-msg").innerText = `"${pilotoSel}: ${msg}"`;
+                }
+
+                if(enBox) {
+                    tiempoEnPitUser += 60;
+                    let segs = Math.max(0, ((4000 - tiempoEnPitUser) / 1000)).toFixed(1);
+                    document.getElementById("pit-btn").innerText = `⏳ EN BOXES (${segs}s)`;
+                    
+                    if(tiempoEnPitUser >= 4000) {
+                        enBox = false;
+                        desgaste = 100;
+                        compuestoActual = compuestoSiguiente;
+                        document.getElementById("live-compound").innerText = compuestoActual;
+                        document.getElementById("pit-btn").innerText = "⚠️ ENTRAR A BOXES";
+                    }
+                } else {
+                    let multVel = 1.0, degBaseVuelta = 18;
+                    let nvlGomas = componentes["Neumáticos"].lvl;
+
+                    if(compuestoActual === "Blando") { multVel = 1.15; degBaseVuelta = 20; }
+                    if(compuestoActual === "Medio") { multVel = 1.0; degBaseVuelta = 12; }
+                    if(compuestoActual === "Duro") { multVel = 0.88; degBaseVuelta = 6; }
+                    
+                    if(compuestoActual === "Lluvia") { 
+                        let rendimientoExtra = 1 + ((nvlGomas - 1) * 0.05);
+                        let boostVelocidad = 1 + ((nvlGomas - 1) * 0.02);
+                        multVel = (climaCarrera === "Lluvia" ? 1.1 : 0.6) * rendimientoExtra * boostVelocidad; 
+                        degBaseVuelta = 10; 
+                    }
+
+                    if(climaCarrera === "Lluvia" && compuestoActual !== "Lluvia") {
+                        degBaseVuelta += 5;
+                    }
+
+                    let bonusIngeniero = ingenieroSel.includes("+3%") ? 1.03 : 1.0;
+                    let factorDesgasteIng = ingenieroSel.includes("-5%") ? 0.95 : 1.0;
+
+                    let userSpeed = (1.55 * multVel * Math.max(0.4, desgaste / 100)) * bonusIngeniero;
+                    userTotalDist += userSpeed;
+                    
+                    let userDist = userTotalDist % pathLength;
+                    let deltaVuelta = userSpeed / pathLength;
+                    vuelta += deltaVuelta;
+
+                    let factorMejoraNeumatico = 1 - ((nvlGomas - 1) * 0.05);
+                    desgaste -= (degBaseVuelta * deltaVuelta) * Math.max(0.5, factorMejoraNeumatico) * factorDesgasteIng;
+
+                    let point = path.getPointAtLength(userDist);
+                    document.getElementById("user-dot").style.left = `${(point.x / 200) * 100}%`;
+                    document.getElementById("user-dot").style.top = `${(point.y / 150) * 100}%`;
+                }
+
+                rivales.forEach(r => {
+                    if(!r.enBox && r.desgaste < 30 && Math.random() < 0.03) {
+                        r.enBox = true;
+                        r.tiempoEnPit = 0;
+                    }
+
+                    if(r.enBox) {
+                        r.tiempoEnPit += 60;
+                        if(r.tiempoEnPit >= 4000) {
+                            r.enBox = false;
+                            r.desgaste = 100;
+                        }
+                    } else {
+                        r.desgaste = Math.max(10, r.desgaste - 0.08);
+                        let speedRival = r.baseSpeed * Math.max(0.4, r.desgaste / 100);
+                        r.totalDist += speedRival;
+                        let rDist = r.totalDist % pathLength;
+
+                        let rPoint = path.getPointAtLength(rDist);
+                        r.el.style.left = `${(rPoint.x / 200) * 100}%`;
+                        r.el.style.top = `${(rPoint.y / 150) * 100}%`;
+                    }
+                });
+
+                let todosLosAutos = [
+                    { nombre: pilotoSel, escuderia: escuderiaSel, distTotal: userTotalDist, esUser: true },
+                    ...rivales.map(r => ({ nombre: r.nombre, escuderia: r.escuderia, distTotal: r.totalDist, esUser: false }))
+                ];
+
+                todosLosAutos.sort((a, b) => b.distTotal - a.distTotal);
+                miPosicion = todosLosAutos.findIndex(a => a.esUser) + 1;
+
+                document.getElementById("live-pos").innerText = `P${miPosicion}`;
+                document.getElementById("live-lap").innerText = `${Math.floor(vuelta)}/10`;
+                document.getElementById("live-tires").innerText = `${Math.max(0, Math.floor(desgaste))}%`;
+
+                if(vuelta >= 10) finalizarCarreraSim();
+            }, 60);
+        }
+
+        function seleccionarProximoCompuesto(c) { compuestoSiguiente = c; }
+        function ordenarPitStop() { if(!enBox) { enBox = true; tiempoEnPitUser = 0; } }
+function finalizarCarreraSim() {
+            clearInterval(carreraInterval);
+            document.getElementById("race-screen").classList.add("hidden");
+            document.getElementById("results-screen").classList.remove("hidden");
+
+            let ganados = (23 - miPosicion) * 20;
+            rp += ganados;
+            document.getElementById("rp-count").innerText = rp.toLocaleString();
+
+            const tbody = document.getElementById("results-body");
+            tbody.innerHTML = "";
+            let pos = 1;
+            for(let team in PARRILLA) {
+                PARRILLA[team].pilotos.forEach(d => {
+                    let esUser = (d === pilotoSel);
+                    let pPos = esUser ? miPosicion : (pos === miPosicion ? pos + 1 : pos);
+                    tbody.innerHTML += `<tr style="${esUser ? 'background:#2a0404; font-weight:bold; color:#ff6b6b;' : 'border-bottom:1px solid #222;'}">
+                        <td style="padding:6px;">P${pPos}</td>
+                        <td style="padding:6px;">${d}</td>
+                        <td style="padding:6px;">${team}</td>
+                        <td style="padding:6px;">+${Math.max(0, 25 - pPos * 2)}</td>
+                    </tr>`;
+                    pos++;
+                });
+            }
+        }
+
+        function volverAlMuro() {
+            document.getElementById("results-screen").classList.add("hidden");
+            document.getElementById("main-menu").classList.remove("hidden");
+        }
     </script>
 </body>
 </html>
+        
+ 
