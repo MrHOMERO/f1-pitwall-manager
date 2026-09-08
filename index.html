@@ -3,251 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pitwall Manager - Ferrari Edition</title>
+    <title>Pitwall Manager 2026</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', -apple-system, Roboto, sans-serif; margin: 0; padding: 0; }
         body { background-color: #0d0d0d; color: #ffffff; text-align: center; overflow-x: hidden; }
         
-        /* Utilidades de estilo */
         .hidden { display: none !important; }
         .text-ferrari { color: #e10600; }
         .bg-ferrari { background-color: #e10600; }
 
-        /* PANTALLA DE INICIO (Estilo iGP Manager) */
+        /* PANTALLA SPLASH */
         #splash-screen {
-            position: relative;
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            padding-bottom: 50px;
-            background: linear-gradient(180deg, rgba(13, 13, 13, 0.2) 0%, rgba(13, 13, 13, 0.95) 85%),
+            height: 100vh; display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: center; padding-bottom: 50px;
+            background: linear-gradient(180deg, rgba(13,13,13,0.2) 0%, rgba(13,13,13,0.95) 85%),
                         radial-gradient(circle at center, #2a0404 0%, #0d0d0d 100%);
             border-bottom: 4px solid #e10600;
         }
+        .brand-badge { background: #fff; color: #000; font-weight: 900; font-size: 0.8rem; padding: 4px 12px; letter-spacing: 2px; border-radius: 2px; margin-bottom: 10px; text-transform: uppercase; }
+        .main-title { font-size: 2.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; line-height: 0.95; margin-bottom: 5px; }
+        .main-title span { color: #e10600; display: block; }
+        .subtitle { color: #a0a0a0; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 30px; }
 
-        .brand-badge {
-            background: #ffffff;
-            color: #000000;
-            font-weight: 900;
-            font-size: 0.8rem;
-            padding: 4px 12px;
-            letter-spacing: 2px;
-            border-radius: 2px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .main-title {
-            font-size: 2.8rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-            line-height: 0.95;
-            margin-bottom: 5px;
-        }
-
-        .main-title span {
-            color: #e10600;
-            display: block;
-        }
-
-        .subtitle {
-            color: #a0a0a0;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            margin-bottom: 30px;
-        }
-
-        /* Botón estilo Manager */
         .btn-main {
-            background: #e10600;
-            color: #ffffff;
-            border: none;
-            width: 85%;
-            max-width: 320px;
-            padding: 16px;
-            font-size: 1.1rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 4px;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(225, 6, 0, 0.4);
-            transition: all 0.2s ease;
+            background: #e10600; color: #ffffff; border: none; width: 85%; max-width: 320px;
+            padding: 16px; font-size: 1.1rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; border-radius: 4px; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(225, 6, 0, 0.4); transition: all 0.2s ease;
         }
+        .btn-main:active { transform: scale(0.97); background: #b80500; }
 
-        .btn-main:active {
-            transform: scale(0.97);
-            background: #b80500;
-        }
+        /* PANTALLA DE CONFIGURACIÓN */
+        #setup-screen { padding: 20px 15px; max-width: 450px; margin: 0 auto; text-align: left; }
+        .setup-title { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; border-left: 4px solid #e10600; padding-left: 10px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: #a0a0a0; text-transform: uppercase; margin-bottom: 6px; }
+        .form-control { width: 100%; background: #161616; border: 1px solid #262626; padding: 12px; border-radius: 4px; color: #fff; font-size: 0.95rem; }
+        .form-control:focus { outline: none; border-color: #e10600; }
+        
+        .grid-select { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .option-card { background: #161616; border: 1px solid #262626; border-radius: 4px; padding: 10px; cursor: pointer; transition: all 0.2s ease; }
+        .option-card.selected { border-color: #e10600; background: #220808; }
+        .option-card h4 { font-size: 0.85rem; font-weight: 800; }
+        .option-card p { font-size: 0.75rem; color: #888; }
 
-        /* MENÚ PRINCIPAL (Hub de Mánager) */
-        #main-menu {
-            padding: 15px;
-            max-width: 500px;
-            margin: 0 auto;
-        }
+        /* DASHBOARD MENÚ PRINCIPAL */
+        #main-menu { padding: 15px; max-width: 450px; margin: 0 auto; }
+        .manager-header { background: #161616; border-left: 5px solid #e10600; border-radius: 6px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; text-align: left; }
+        .manager-info h2 { font-size: 1.2rem; font-weight: 800; color: #ffffff; }
+        .manager-info p { font-size: 0.8rem; color: #888888; }
+        .currency-badge { background: #222222; border: 1px solid #333333; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; }
 
-        /* Header de perfil */
-        .manager-header {
-            background: #161616;
-            border-left: 5px solid #e10600;
-            border-radius: 6px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            text-align: left;
-        }
+        .next-race-card { background: linear-gradient(135deg, #1c1c1c 0%, #111111 100%); border: 1px solid #333333; border-radius: 6px; padding: 15px; text-align: left; margin-bottom: 15px; }
+        .race-tag { font-size: 0.7rem; font-weight: 800; color: #e10600; text-transform: uppercase; letter-spacing: 1px; }
+        .race-title { font-size: 1.1rem; font-weight: 800; margin: 4px 0; }
 
-        .manager-info h2 {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: #ffffff;
-        }
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .menu-card { background: #161616; border: 1px solid #262626; border-radius: 6px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: border-color 0.2s ease; }
+        .menu-card:hover { border-color: #e10600; }
+        .menu-card .icon { font-size: 1.8rem; }
+        .menu-card .label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .manager-info p {
-            font-size: 0.8rem;
-            color: #888888;
-        }
-
-        .currency-badge {
-            background: #222222;
-            border: 1px solid #333333;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        /* Rejilla del menú de navegación */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .menu-card {
-            background: #161616;
-            border: 1px solid #262626;
-            border-radius: 6px;
-            padding: 20px 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: border-color 0.2s ease;
-        }
-
-        .menu-card:hover {
-            border-color: #e10600;
-        }
-
-        .menu-card .icon {
-            font-size: 1.8rem;
-        }
-
-        .menu-card .label {
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Banner de Próxima Carrera */
-        .next-race-card {
-            background: linear-gradient(135deg, #1c1c1c 0%, #111111 100%);
-            border: 1px solid #333333;
-            border-radius: 6px;
-            padding: 15px;
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        .race-tag {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: #e10600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .race-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            margin: 4px 0;
-        }
+        /* MODALES DE ACCIÓN */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: #161616; border: 1px solid #333; border-radius: 6px; width: 90%; max-width: 400px; padding: 20px; text-align: left; position: relative; }
+        .modal-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; border-left: 3px solid #e10600; padding-left: 8px; margin-bottom: 12px; }
+        .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #aaa; font-size: 1.2rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA DE INICIO (SPLASH) -->
+    <!-- 1. SPLASH -->
     <div id="splash-screen">
         <div class="brand-badge">Scuderia Hub</div>
         <h1 class="main-title">GP MANAGER <span>2026</span></h1>
         <p class="subtitle">Estrategia & Control de Carrera en Tiempo Real</p>
-        <button class="btn-main" onclick="entrarAlMenu()">Ingresar al Muro</button>
+        <button class="btn-main" onclick="irAConfiguracion()">Iniciar Carrera</button>
     </div>
 
-    <!-- MENÚ PRINCIPAL (HUB DE MÁNAGER) -->
-    <div id="main-menu" class="hidden">
+    <!-- 2. SELECCIÓN Y CONFIGURACIÓN -->
+    <div id="setup-screen" class="hidden">
+        <h2 class="setup-title">Perfil de Carrera</h2>
         
-        <!-- Header de Mánager -->
+        <div class="form-group">
+            <label>Nombre del Mánager</label>
+            <input type="text" id="manager-input" class="form-control" value="Mánager 1">
+        </div>
+
+        <div class="form-group">
+            <label>Escudería</label>
+            <div id="team-options" class="grid-select"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Piloto Principal</label>
+            <div id="driver-options" class="grid-select"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Ingeniero Jefe de Pista</label>
+            <div id="engineer-options" class="grid-select">
+                <div class="option-card selected" onclick="selEngineer('Gianpiero Lambiase (+3% Ritmo)', this)">
+                    <h4>G. Lambiase</h4>
+                    <p>+3% Ritmo de Carrera</p>
+                </div>
+                <div class="option-card" onclick="selEngineer('Peter Bonnington (-5% Desgaste)', this)">
+                    <h4>P. Bonnington</h4>
+                    <p>-5% Desgaste Neumático</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-main" style="width:100%; margin-top:10px;" onclick="confirmarTodo()">Tomar el Mando</button>
+    </div>
+
+    <!-- 3. MENÚ PRINCIPAL (DASHBOARD) -->
+    <div id="main-menu" class="hidden">
         <div class="manager-header">
             <div class="manager-info">
-                <h2>Director de Equipo</h2>
-                <p>Scuderia Ferrari</p>
+                <h2 id="disp-manager">Director</h2>
+                <p id="disp-team-driver">Escudería | Piloto</p>
+                <p id="disp-engineer" style="color:#e10600; font-size:0.75rem; margin-top:2px;"></p>
             </div>
             <div class="currency-badge">
                 <span class="text-ferrari">RP:</span> <span id="rp-count">1,500</span>
             </div>
         </div>
 
-        <!-- Tarjeta Próxima Carrera -->
         <div class="next-race-card">
             <div class="race-tag">Próximo Evento</div>
             <div class="race-title">GP de Australia (Melbourne)</div>
             <p style="font-size:0.8rem; color:#888;">Condiciones estimadas: Seco / Templado</p>
-            <button class="btn-main" style="width:100%; margin-top:12px; padding:12px; font-size:0.9rem;" onclick="prepararEstrategia()">Ir a Estrategia</button>
+            <button class="btn-main" style="width:100%; margin-top:12px; padding:12px; font-size:0.9rem;" onclick="abrirModal('ir-estrategia')">IR A ESTRATEGIA</button>
         </div>
 
-        <!-- Módulo de Accesos Directos estilo iGP -->
         <div class="menu-grid">
-            <div class="menu-card">
+            <div class="menu-card" onclick="abrirModal('monoplaza')">
                 <span class="icon">🏎️</span>
-                <span class="label">Monoplaza</span>
+                <span class="label">MONOPLAZA</span>
             </div>
-            <div class="menu-card">
+            <div class="menu-card" onclick="abrirModal('taller')">
                 <span class="icon">🛠️</span>
-                <span class="label">Taller I+D</span>
+                <span class="label">TALLER I+D</span>
             </div>
-            <div class="menu-card">
+            <div class="menu-card" onclick="abrirModal('telemetria')">
                 <span class="icon">📊</span>
-                <span class="label">Telemetría</span>
+                <span class="label">TELEMETRÍA</span>
             </div>
-            <div class="menu-card">
+            <div class="menu-card" onclick="abrirModal('campeonato')">
                 <span class="icon">🏆</span>
-                <span class="label">Campeonato</span>
+                <span class="label">CAMPEONATO</span>
             </div>
         </div>
+    </div>
 
+    <!-- MODAL DE ACCIONES -->
+    <div id="modal-box" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-btn" onclick="cerrarModal()">✕</button>
+            <h3 id="modal-title" class="modal-title">Sección</h3>
+            <div id="modal-body" style="font-size:0.85rem; color:#ccc;"></div>
+        </div>
     </div>
 
     <script>
-        function entrarAlMenu() {
+        const PARRILLA = {
+            "Scuderia Ferrari": { color: "#e10600", pilotos: ["Charles Leclerc", "Lewis Hamilton"] },
+            "McLaren F1": { color: "#ff8000", pilotos: ["Lando Norris", "Oscar Piastri"] },
+            "Red Bull Racing": { color: "#3671c6", pilotos: ["Max Verstappen", "Isack Hadjar"] },
+            "Mercedes AMG": { color: "#27f4d2", pilotos: ["George Russell", "Kimi Antonelli"] }
+        };
+
+        let managerName = "", escuderiaSel = "Scuderia Ferrari", pilotoSel = "", ingenieroSel = "Gianpiero Lambiase (+3% Ritmo)";
+
+        function irAConfiguracion() {
             document.getElementById("splash-screen").classList.add("hidden");
-            document.getElementById("main-menu").classList.remove("hidden");
+            document.getElementById("setup-screen").classList.remove("hidden");
+            initSetup();
         }
 
-        function prepararEstrategia() {
-            alert("Siguiente paso: Configurar estrategia de carrera.");
+        function initSetup() {
+            const tDiv = document.getElementById("team-options");
+            tDiv.innerHTML = "";
+            for(let team in PARRILLA) {
+                tDiv.innerHTML += `
+                    <div class="option-card ${team === escuderiaSel ? 'selected':''}" onclick="selTeam('${team}', this)">
+                        <h4>${team}</h4>
+                    </div>`;
+            }
+            renderDrivers(escuderiaSel);
+        }
+
+        function selTeam(team, el) {
+            escuderiaSel = team;
+            document.querySelectorAll("#team-options .option-card").forEach(c => c.classList.remove("selected"));
+            el.classList.add("selected");
+            renderDrivers(team);
+        }
+
+        function renderDrivers(team) {
+            const dDiv = document.getElementById("driver-options");
+            dDiv.innerHTML = "";
+            PARRILLA[team].pilotos.forEach((p, i) => {
+                if(i===0 && !pilotoSel) pilotoSel = p;
+                dDiv.innerHTML += `
+                    <div class="option-card ${p === pilotoSel ? 'selected':''}" onclick="selDriver('${p}', this)">
+                        <h4>${p}</h4>
+                    </div>`;
+            });
+        }
+
+        function selDriver(p, el) {
+            pilotoSel = p;
+            document.querySelectorAll("#driver-options .option-card").forEach(c => c.classList.remove("selected"));
+            el.classList.add("selected");
+        }
+
+        function selEngineer(eng, el) {
+            ingenieroSel = eng;
+            document.querySelectorAll("#engineer-options .option-card").forEach(c => c.classList.remove("selected"));
+            el.classList.add("selected");
+        }
+
+        function confirmarTodo() {
+            managerName = document.getElementById("manager-input").value || "Mánager";
+            document.getElementById("setup-screen").classList.add("hidden");
+            document.getElementById("main-menu").classList.remove("hidden");
+
+            document.getElementById("disp-manager").innerText = managerName;
+            document.getElementById("disp-team-driver").innerText = `${escuderiaSel} | ${pilotoSel}`;
+            document.getElementById("disp-engineer").innerText = `Ingeniero: ${ingenieroSel}`;
+        }
+
+        function abrirModal(tipo) {
+            const mBox = document.getElementById("modal-box");
+            const mTitle = document.getElementById("modal-title");
+            const mBody = document.getElementById("modal-body");
+
+            mBox.classList.remove("hidden");
+
+            if(tipo === 'monoplaza') {
+                mTitle.innerText = "Monoplaza";
+                mBody.innerHTML = `<p>Estado del auto de <b>${pilotoSel}</b>:</p><br><ul><li>Alerón Delantero: 100%</li><li>Motor V6 Turbo: 100%</li><li>Sistemas ERS/MGU-K: 100%</li></ul>`;
+            } else if(tipo === 'taller') {
+                mTitle.innerText = "Taller I+D";
+                mBody.innerHTML = `<p>Desarrollo técnico coordinado con <b>${ingenieroSel}</b>.</p><br><p>Proyectos activos: Mejora de Carga Aerodinámica (2 carreras restantes).</p>`;
+            } else if(tipo === 'telemetria') {
+                mTitle.innerText = "Telemetría";
+                mBody.innerHTML = `<p>Centro de Datos de <b>${escuderiaSel}</b>.</p><br><p>Métricas históricas y rendimiento en simulación listos para la carrera de Melbourne.</p>`;
+            } else if(tipo === 'campeonato') {
+                mTitle.innerText = "Campeonato 2026";
+                mBody.innerHTML = `<p>Tabla de Posiciones Mundial de Mánagers y Pilotos.</p><br><p>Líder actual: Max Verstappen (0 pts - Pretemporada).</p>`;
+            } else if(tipo === 'ir-estrategia') {
+                mTitle.innerText = "Estrategia GP Australia";
+                mBody.innerHTML = `<p>Mánager <b>${managerName}</b>, elige el plan para <b>${pilotoSel}</b>:</p><br><p>Plan A: Sof-Med (1 Parada)<br>Plan B: Sof-Sof-Med (2 Paradas)</p>`;
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById("modal-box").classList.add("hidden");
         }
     </script>
 </body>
