@@ -1,4 +1,12 @@
-__pycache__/
-*.pyc
-.vscode/
-.idea/
+# Godot 4 especifico
+.godot/
+*.import
+export_presets.cfg
+
+# Archivos de exportación de compilación
+build/
+bin/
+*.html
+*.wasm
+*.pck
+*.apk
